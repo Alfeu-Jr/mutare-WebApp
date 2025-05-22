@@ -259,3 +259,63 @@ export class Lista {
   }
 
 }
+// file2.js
+export class selectFiller {
+
+
+  // parametros (id_do_select, conteudo, ['v1','v2'], [datan])
+  // v1 - nome chave do conteudo, o valor sera atribuido ao texto do select ;
+  // v2 - nome da chave do conteudo, o valor sera atribuido ao atibutto value do select;
+  // datan (opcional) - nome da chave do conteudo, o valor sera definido ao atributo extra a ser criado a cada <option>, nomeclatura do atributo: 'data-datan'
+  fillSelect(elemento, conteudo, variaveis, attributos) {
+    const select_conteudo = variaveis[0];
+    const select_value = variaveis[1];
+    const atributos = variaveis.slice(2);
+
+        while (elemento.options.length > 0) {
+          elemento.remove(0);
+      }
+      // Add default option
+      const defaultOption = document.createElement('option');
+      defaultOption.selected = true;
+      defaultOption.disabled = true;
+      defaultOption.value = "";
+      defaultOption.textContent = "Selecione";
+      elemento.appendChild(defaultOption);
+      
+    // Adiciona as novas opções
+    conteudo.forEach(conteudo => {
+      const optionElement = document.createElement('option');
+      optionElement.textContent = conteudo[select_conteudo];
+      optionElement.value = conteudo[select_value];
+
+      atributos.forEach(atributo => {
+        optionElement.setAttribute("data-" + atributo, conteudo[atributo]);
+      });
+
+      // console.log(elemento)
+      elemento.appendChild(optionElement);
+    });
+  }
+
+  getSelect(table, elementId, keys) {
+    let self = this;
+    return new Promise((resolve, reject) => {
+      var element = document.getElementById(elementId);
+      $.ajax({
+        url: 'assets/model/request.php',
+        type: 'post',
+        data: { request_geral: 'listar_slc', tabela: table },
+        dataType: 'json',
+        success: function (response) {
+
+          self.fillSelect(element, response, keys);
+          resolve();
+        },
+        error: function (error) {
+          reject(error);
+        }
+      })
+    })
+  }
+}
