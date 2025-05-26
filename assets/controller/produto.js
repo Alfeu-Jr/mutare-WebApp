@@ -9,27 +9,67 @@ class listaProduto{
 		//   console.log('ano')
         	// Datatable
           
-      if($('.datatable-new').length > 0) {
-        $('.datatable-new').DataTable({
-          "bFilter": true,
-          "sDom": 'fBtlpi',  
-          "ordering": true,
-          "language": {
-            search: ' ',
-            sLengthMenu: '_MENU_',
-            searchPlaceholder: "Search",
-            info: "_START_ - _END_ of _TOTAL_ items",
-            paginate: {
-              next: ' <i class=" fa fa-angle-right"></i>',
-              previous: '<i class="fa fa-angle-left"></i> '
-            },
-          },
-          initComplete: (settings, json)=>{
-            $('.dataTables_filter').appendTo('#tableSearch');
-            $('.dataTables_filter').appendTo('.search-input');
-          },	
-        });
-      }
+      // if($('.datatable-new').length > 0) {
+      //   $('.datatable-new').DataTable({
+      //     "bFilter": true,
+      //     "sDom": 'fBtlpi',  
+      //     "ordering": true,
+      //     "language": {
+      //       search: ' ',
+      //       sLengthMenu: '_MENU_',
+      //       searchPlaceholder: "Search",
+      //       info: "_START_ - _END_ of _TOTAL_ items",
+      //       paginate: {
+      //         next: ' <i class=" fa fa-angle-right"></i>',
+      //         previous: '<i class="fa fa-angle-left"></i> '
+      //       },
+      //     },
+      //     initComplete: (settings, json)=>{
+      //       $('.dataTables_filter').appendTo('#tableSearch');
+      //       $('.dataTables_filter').appendTo('.search-input');
+      //     },	
+      //   });
+      // }
+
+      self = this;
+    // var condicao = [];
+    // if(self.ano == ''){
+    //   condicao = [['valido', 1],['s.id', self.sector]]
+    // }
+    // else{
+    //   condicao = [['valido', 1],['s.id', self.sector],['ano', self.ano]]
+    // }
+    
+    this.nomeTabela = 'datatable-new';
+    // this.url = 'assets/model/relatorio.php';
+    this.colunas = ['centro',
+      // 'sector',
+      'descricao',
+      'periodo_estatistico',
+      'periodo',
+      'ano',
+      'documento_reconhecido',
+      'date_insert',
+      'action'];
+
+    // this.sort = [6, 'desc'];
+
+    // this.dataRequest = {
+    //   request: "listar",
+    //   condicao: condicao
+    // };
+    this.notOrderable = [9];
+    // this.dateType = [4];
+    this.collumnFilter = [1, 3, 4, 6, 8];
+
+    this.listalocal();
+
+
+    // $('#datatable-new').on('click', '.detalhe-relatorio', function () {
+    //   var id = $(this).data('id');
+    //   window.open("relatorio/detalhe.php?id_relatorio=" + id, "_self");
+
+    // });
     }
 
 	
