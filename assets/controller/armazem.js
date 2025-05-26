@@ -45,10 +45,12 @@ class listaArmazem extends Lista{
     
     this.nomeTabela = 'lista_armazem';
     this.url = 'assets/model/armazem.php';
-    this.colunas = ['armazem',
+    this.colunas = 
+    ['armazem',
       'responsavel',
       'total_produtos',
       'stock_total',
+      'estado',
       'action'];
 
     this.sort = [1, 'desc'];

@@ -140,9 +140,16 @@ class Armazem
         //         LEFT OUTER JOIN descricao_relatorio dr ON ( r.descricao = dr.id  )
         //             LEFT OUTER JOIN sector s ON ( r.sector = s.sector ) where {$condicao}) as T";
 
-                    $table = "(SELECT a.id, a.codigo, a.armazem, a.descricao, a.localizacao, a.responsavel, f.nome 
+                    // $table = "(SELECT a.id, a.codigo, a.armazem, a.descricao, a.localizacao, a.responsavel, f.nome 
+                    // FROM mutare_solucoes.armazem a 
+                    // Left outer join mutare_solucoes.funcionario f ON ( a.responsavel = f.id  ) where {$condicao}) as T";
+
+                    $table = "(SELECT a.armazem AS armazem, f.nome AS responsavel, COUNT(p.id) AS total_produtos, SUM(ia.quantidade) AS stock_total, as a.activo 
                     FROM mutare_solucoes.armazem a 
-                    Left outer join mutare_solucoes.funcionario f ON ( a.responsavel = f.id  ) where {$condicao}) as T";
+                    LEFT OUTER JOIN mutare_solucoes.funcionario f ON a.responsavel = f.id 
+                    LEFT OUTER JOIN mutare_solucoes.item_armazem ia ON a.id = ia.armazem_id 
+                    LEFT OUTER JOIN mutare_solucoes.produto p ON ia.produto_id = p.id 
+                    GROUP BY a.id, f.nome where {$condicao}) as T";
         // $table = "(SELECT r.id, r.centro, r.periodo, r.ano, r.date_insert, dr.descricao, dr.periodo as periodo_estatistico, s.sector, r.valido, r.filename as filename_padrao,
         //   (SELECT fr.documento_reconhecido FROM filename_relatorio fr WHERE fr.relatorio = r.id ORDER BY fr.id DESC LIMIT 1) as documento_reconhecido,
         // echo $table;
@@ -178,8 +185,13 @@ class Armazem
                         </a>
                     </div>
                 ";
+                $cor = $response[$i]['activo'] == 1 ? 'badge-linesuccess' : 'badge-linedanger ';
+                $activo = $response[$i]['activo'] == 1 ? 'Activo' : 'Desactivado';
 
-                // $action .= "
+                $estado = " <span class='badge {$cor}'>{$activo}</span>";
+                // $estado = "<span class='badge badge-linesuccess'>Activo</span>";
+
+                // $action 
                 // <div class='btn-group ml-2'>
                 //             <a href='arquivos/relatorio/{$response[$i]['localizacao_relatorio']}/{$response[$i]['filename']}'>
                 //                 <button class='btn btn-sm btn-secondary download-relatorio btn-pr' data-id={$response[$i]['id']}>
@@ -199,6 +211,8 @@ class Armazem
                 // Verificar se as chaves existem e não são nulas
                 if (isset($response[$i]) && !empty($response[$i])) {
                     $response[$i]['action'] = $action;
+                    $response[$i]['estado'] = $ $estado;
+                    // $estado
                 }
             }
         }
