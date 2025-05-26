@@ -11,10 +11,10 @@ try {
     $con = new mysqli($host, $user, $password, $dbname);
 } catch (exception $ex) {
     //database cloud
-    $host = "localhost:3307";
-    $user = "root";
-    $password = "";
-    $dbname = "mutare_solucoes";
+    $host = "mutare-solucoes-alfeupassanduca01-ec02.l.aivencloud.com:13991";
+    $user = "avnadmin";
+
+    $dbname = "mutare-solucoes";
 //     $host = "localhost:3307";
 // $user = "root";
 // $password = "1111";

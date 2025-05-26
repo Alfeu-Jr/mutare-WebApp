@@ -31,6 +31,7 @@ class listaProduto{
         });
       }
     }
+
 	
 }
 
@@ -53,8 +54,11 @@ class adicionarProduto extends selectFiller {
 
       $('#submeter-adicionar-categoria').on('click', function () {
         $("#txt_nova_categoria").val().trim().length > 0 ? self.guardar_categoria() : true;
-  
       });
+          $('#form_adicionarproduto').on('submit', function (e) {
+        e.preventDefault();
+        validar_produto() ? guardar_categoria() : true;
+      })
     }
     
     getSelect(tabela, elementoId, keys) {
@@ -156,6 +160,150 @@ guardar_categoria() {
 
     request(dadosCategoria);
   }
+
+  guardar_produto() {
+ let formData = new FormData();
+
+        // Captura dos valores dos campos
+        formData.append('armazem', $('#slc_armazem').val());
+        formData.append('nome_produto', $('#txt_nomeproduto').val().trim());
+        formData.append('marca_produto', $('#txt_marcaproduto').val().trim());
+        formData.append('categoria', $('#slc_categoria').val());
+        formData.append('tipo_venda', $('#slc_tipovenda').val());
+        formData.append('quantidade', $('#txt_quantidade').val());
+        formData.append('preco', $('#txt_preco').val().replace(',', '.'));
+        formData.append('peso', $('#txt_peso').val());
+        formData.append('quantidade_alerta', $('#txt_quantidaalerta').val());
+        formData.append('data_fabricacao', $('#txt_datafabricacao').val());
+        formData.append('validade', $('#txt_validade').val());
+        formData.append('descricao', $('#txt_descricao').val());
+
+        // Se houver campos de imagem:
+        let fileInput = $('#form_adicionarproduto input[type="file"]')[0];
+        if (fileInput && fileInput.files.length > 0) {
+            for (let i = 0; i < fileInput.files.length; i++) {
+                formData.append('imagens[]', fileInput.files[i]);
+            }
+        }
+
+        // Adicione outros campos conforme necessário
+
+        $.ajax({
+            url: 'assets/model/produto.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function (response) {
+                if (response.status === true) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Produto adicionado com sucesso!',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        // Redirecionar ou limpar formulário
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro ao adicionar produto',
+                        html: response.mensagem || 'Ocorreu um erro ao salvar o produto.'
+                    });
+                }
+            },
+            error: function (xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro de sistema',
+                    html: xhr.responseText || 'Ocorreu um erro inesperado.'
+                });
+            }
+        });
+  }
+  validar_produto() {
+    let valido = true;
+    let mensagens = [];
+
+    // Armazém
+    if (!$('#slc_armazem').val()) {
+        valido = false;
+        mensagens.push('Selecione o Armazém.');
+    }
+
+    // Nome do Produto
+    if (!$('#txt_nomeproduto').val() || !$('#txt_nomeproduto').val().trim()) {
+        valido = false;
+        mensagens.push('O nome do produto é obrigatório.');
+    }
+
+    // Marca do Produto
+    if (!$('#txt_marcaproduto').val() || !$('#txt_marcaproduto').val().trim()) {
+        valido = false;
+        mensagens.push('A marca do produto é obrigatória.');
+    }
+
+    // Categoria
+    if (!$('#slc_categoria').val()) {
+        valido = false;
+        mensagens.push('Selecione a categoria.');
+    }
+
+    // Tipo de Venda
+    if (!$('#slc_tipovenda').val()) {
+        valido = false;
+        mensagens.push('Selecione o tipo de venda.');
+    }
+
+    // Quantidade
+    let quantidade = $('#txt_quantidade').val();
+    if (!quantidade || isNaN(quantidade) || Number(quantidade) <= 0) {
+        valido = false;
+        mensagens.push('A quantidade deve ser maior que zero.');
+    }
+
+    // Preço
+    let preco = $('#txt_preco').val();
+    if (!preco || isNaN(preco.replace(',', '.')) || Number(preco.replace(',', '.')) <= 0) {
+        valido = false;
+        mensagens.push('Introduza um preço válido.');
+    }
+
+    // Peso Total
+    let peso = $('#txt_peso').val();
+    if (peso && (isNaN(peso) || Number(peso) < 0)) {
+        valido = false;
+        mensagens.push('O peso total não pode ser negativo.');
+    }
+
+    // Quantidade Mínima para Alerta
+    let alerta = $('#txt_quantidaalerta').val();
+    if (alerta && (isNaN(alerta) || Number(alerta) < 0)) {
+        valido = false;
+        mensagens.push('A quantidade mínima para alerta não pode ser negativa.');
+    }
+
+    // Descrição
+    let descricao = $('#txt_descricao').val();
+    if (descricao && descricao.length > 60) {
+        valido = false;
+        mensagens.push('A descrição deve ter no máximo 60 caracteres.');
+    }
+
+    if (!valido) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro de Validação',
+            html: mensagens.join('<br>'),
+            confirmButtonText: 'OK'
+        });
+    }
+
+    return valido;
+}
+
+
 
 }
 
