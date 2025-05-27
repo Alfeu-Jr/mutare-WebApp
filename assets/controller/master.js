@@ -117,6 +117,13 @@ export class Lista {
           return data;
         }
       }
+      ,
+      {
+        targets: this.colunas.length - 1, // Última coluna
+        createdCell: function(td, cellData, rowData, row, col) {
+          $(td).addClass('action-table-data');
+        }
+      }
       ],
       
 
@@ -473,4 +480,17 @@ export class selectFiller {
       })
     })
   }
+}
+
+export class toasterAlerta {
+  constructor(toastID, message, type) {
+
+    const toast = new bootstrap.Toast(document.getElementById(`#${this.toastID}`))
+    
+    // `#${this.nomeTabela}`
+    toast.show()
+
+  }
+
+
 }

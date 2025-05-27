@@ -144,7 +144,7 @@ class Armazem
                     // FROM mutare_solucoes.armazem a 
                     // Left outer join mutare_solucoes.funcionario f ON ( a.responsavel = f.id  ) where {$condicao}) as T";
 
-                    $table = "(SELECT a.armazem AS armazem, f.nome AS responsavel, COUNT(p.id) AS total_produtos, SUM(ia.quantidade) AS stock_total, a.activo as activo
+                    $table = "(SELECT a.id, a.armazem AS armazem, f.nome AS responsavel, COUNT(p.id) AS total_produtos, SUM(ia.quantidade) AS stock_total, a.activo as activo
                     FROM mutare_solucoes.armazem a 
                     LEFT OUTER JOIN mutare_solucoes.funcionario f ON a.responsavel = f.id 
                     LEFT OUTER JOIN mutare_solucoes.item_armazem ia ON a.id = ia.armazem_id 
@@ -179,12 +179,12 @@ class Armazem
             for ($i = 0; $i < $len; $i++) {
                 // Botão que permite visualizar os detalhe
                 $action = "<div class='edit-delete-action'>
-                        <a class='me-2 edit-icon p-2' href='#' data-bs-toggle='modal' data-bs-target='#edit-units'>
-                            <i data-feather='eye' class='feather-eye'></i>
-                        </a>
-                        <a class='me-2 p-2' href='#' data-bs-toggle='modal' data-bs-target='#edit-units'>
-                            <i data-feather='edit' class='feather-edit'></i>
-                        </a>
+                       <a class='me-2 edit-icon p-2' href='#' data-bs-toggle='modal' data-bs-target='#view-units' data-id={$response[$i]['id']}>
+														<i class='fa fa-eye' data-bs-toggle='tooltip' title='fa fa-eye'></i>
+                                                        </a>
+													<a class='me-2 p-2' href='#' data-bs-toggle='modal' data-bs-target='#edit-units' data-id={$response[$i]['id']}>
+                                                        <i class='fa fa-edit' data-bs-toggle='tooltip' title='fa fa-edit'></i>
+													</a>
                     </div>";
                 $cor = $response[$i]['activo'] == 1 ? 'badge-linesuccess' : 'badge-linedanger ';
                 $activo = $response[$i]['activo'] == 1 ? 'Activo' : 'Desactivado';

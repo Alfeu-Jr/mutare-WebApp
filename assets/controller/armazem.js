@@ -6,43 +6,25 @@ class listaArmazem extends Lista{
         super();
 		self = this;
 		this.init();
+
+    
+    // bootstrap.Toast(document.getElementById('dangerToast')).show()
+    const toast = new bootstrap.Toast(document.getElementById('dangerToast'))
+        toast.show()
+      /* Danger toast js */
+      // const dangerToast = document.getElementById('dangerToastBtn')
+      // const dangertoastExample = document.getElementById('dangerToast')
+      // if (dangerToast) {
+      //   dangerToast.addEventListener('click', () => {
+      //     const toast = new bootstrap.Toast(dangertoastExample)
+      //     toast.show()
+      //   })
+      // }
     }
 
     init(){ 
-		//   console.log('ano')
-        	// Datatable
-          
-      // if($('.datatable-new').length > 0) {
-      //   $('.datatable-new').DataTable({
-      //     "bFilter": true,
-      //     "sDom": 'fBtlpi',  
-      //     "ordering": true,
-      //     "language": {
-      //       search: ' ',
-      //       sLengthMenu: '_MENU_',
-      //       searchPlaceholder: "Search",
-      //       info: "_START_ - _END_ of _TOTAL_ items",
-      //       paginate: {
-      //         next: ' <i class=" fa fa-angle-right"></i>',
-      //         previous: '<i class="fa fa-angle-left"></i> '
-      //       },
-      //     },
-      //     initComplete: (settings, json)=>{
-      //       $('.dataTables_filter').appendTo('#tableSearch');
-      //       $('.dataTables_filter').appendTo('.search-input');
-      //     },	
-      //   });
-      // }
 
       self = this;
-    var condicao = [];
-    // if(self.ano == ''){
-      condicao = [['activo', ],['s.id', self.sector]]
-    // }
-    // else{
-    //   condicao = [['valido', 1],['s.id', self.sector],['ano', self.ano]]
-    // }
-    
     this.nomeTabela = 'lista_armazem';
     this.url = 'assets/model/armazem.php';
     this.colunas = 
@@ -57,10 +39,8 @@ class listaArmazem extends Lista{
 
     this.dataRequest = {
       request: "listar"
-    //   condicao: condicao
     };
     this.notOrderable = [5];
-    // this.dateType = [4];
     this.collumnFilter = [0, 1, 2, 3, 4];
 
     this.lista();
@@ -72,6 +52,80 @@ class listaArmazem extends Lista{
 
     // });
     }	
+
+    visualizar_armazem(){
+      
+    }
+    
+
+    // async carregarArmazem(id_armazem) {
+    //   self = this;
+    //   // var ficheiro;
+    //   // var documento_reconhecido;
+  
+    //   try {
+    //     await $.ajax({
+    //       url: "assets/model/armazem.php",
+    //       method: "POST",
+    //       data: { request: 'detalhe', id_armazem: id_armazem,
+    //       dataType: "json",
+  
+    //       success: function (response) {
+    //         if (response.status == true) {
+    //           self.dados_armazem = response.data;
+  
+    //           $('#txt_armazem').text(response.data.armazem);
+    //           $('#txt_responsavel').text(response.data.responsavel);
+    //           $('#txt_numero_telefones').text(response.data.numero_telefones);
+    //           $('#txt_enderoco').text(response.data.enderoco);
+    //           $('#txt_provincia').text(response.data.provincia);
+    //           $('#txt_cidade').text(response.data.cidade);
+  
+    //           // $('#txt_tipo_relatorio').text(response.data.localizacao_relatorio);
+             
+    //           // documento_reconhecido = response.data.documento_reconhecido;
+  
+    //           // $('#txt_documento_reconhecido').text(documento_reconhecido);
+  
+    //           //Secção dos Anexos 
+  
+    //           // ficheiro = "arquivos/relatorio/" + response.data.localizacao_relatorio + "/" + response.data.filename;
+  
+    //           // //verifica se o formato do ficheiro é compatível
+    //           // if((response.data.filename.toLowerCase()).includes('.pdf')){
+    //           //   $('#ficheiro_relatorio').attr('src', ficheiro);
+    //           //   $('#ver_ficheiro').attr('href', ficheiro);
+    //           // }else{
+    //           //   $('.ficheiro-compativel').each(function () {
+    //           //     $(this).addClass("d-none");
+    //           //   });
+    //           //   $('.ficheiro-incompativel').removeClass("d-none");
+    //           // }
+  
+    //           // $('#transferir_ficheiro').attr('href', ficheiro);
+    //           // $('#transferir_ficheiro').attr('download', response.data.filename_padrao);
+  
+    //           // console.log(response.user_id);
+  
+    //           // const funcao = response.user_funcao.toLowerCase();
+    //           // if (response.data.user_insert == response.user_id || funcao == 'administrador' || funcao == 'm&t'|| funcao == 'it') {
+    //           //   $(".alterar-relatorio").removeClass("d-none");
+    //           }
+    //         }
+  
+    //       },
+    //       erro: function (response) {
+    //         Swalig.fire({
+    //           icon: "error",
+    //           title: "Detalhes do Armazem",
+    //           html: "Ocorreu um erro ao guardar os dados do relatório, por favor <b><i>retorne</i></b> ao Menu Principal e tente Novamente."
+    //         });
+    //       }
+    //     });
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // }
 }
 
 

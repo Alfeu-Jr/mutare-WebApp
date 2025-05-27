@@ -1889,15 +1889,15 @@
 											<th>Ação</th>
 										</tr>
 										 <tr>
-                      <!-- <th></th> -->
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                    
-                    </tr>
+										<!-- <th></th> -->
+										<th></th>
+										<th></th>
+										<th></th>
+										<th></th>
+										<th></th>
+										<th></th>
+										
+										</tr>
 									</thead>
 									
 								</table>
@@ -2131,6 +2131,90 @@
 				</div>
 			</div>
 		</div>
+				<div class="modal fade" id="view-units">
+			<div class="modal-dialog modal-dialog-centered custom-modal-two">
+				<div class="modal-content">
+					<div class="page-wrapper-new p-0">
+						<div class="content">
+							<div class="modal-header border-0 custom-modal-header">
+								<div class="page-title">
+									<h4>Informações do Armazém</h4>
+								</div>
+								<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body custom-modal-body">
+								<form action="warehouse.html">
+									<div class="modal-title-head">
+										<h6><span><i data-feather="info" class="feather-edit"></i></span>Informações do armazém</h6>
+									</div>
+									<div class="row">
+										<div class="col-lg-6">
+											<div class="mb-3">
+												<label class="form-label">Nome do Armazem</label>
+												<input type="text" class="form-control" value="" id="txt_armazem" readonly>
+											</div>
+										</div>
+										<div class="col-lg-6">
+											<div class="input-blocks">
+												<label>Responsavel</label>
+												<input type="text" class="form-control" value="" id="txt_responsavel" readonly>
+											</div>
+										</div>
+										<div class="col-lg-6">
+											<div class="mb-3 war-edit-phone">
+												<label class="mb-2">Número de Telefone</label>
+												<input class="form-control" id="txt_numero_telefones" name="phone" type="text" readonly>
+											</div>
+										</div>
+										<div class="modal-title-head">
+											<h6><span><i data-feather="map-pin"></i></span>Localização</h6>
+										</div>
+										<div class="col-lg-12">
+											<div class="mb-3">
+												<label class="form-label">Endereço</label>
+												<input type="text" class="form-control" id="txt_enderoco" value="" readonly>
+											</div>
+										</div>
+										<div class="col-lg-6">
+											<div class="mb-3">
+												<label class="form-label">Provincia</label>
+												<input type="text" class="form-control" id="txt_provincia" value="" readonly>
+											</div>
+										</div>
+										<div class="col-lg-6">
+											<div class="mb-3 mb-0">
+												<label class="form-label">Cidade</label>
+												<input type="text" class="form-control" id="txt_cidade" value="" readonly>
+											</div>
+										</div>
+									</div>
+									<div class="modal-footer-btn">
+										<button type="button" class="btn btn-cancel me-2" data-bs-dismiss="modal">Cancelar</button>
+										<!-- <button type="submit" class="btn btn-submit" disabled>Salvar Alterações</button> -->
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="toast-container position-fixed top-0 end-0 p-3">
+			<div id="dangerToast" class="toast colored-toast bg-danger-transparent" role="alert" aria-live="assertive"
+				aria-atomic="true">
+				<div class="toast-header bg-danger text-fixed-white">
+					<strong class="me-auto">Detalhes do Armazem</strong>
+					<button type="button" class="btn-close" data-bs-dismiss="toast"
+						aria-label="Close"></button>
+				</div>
+				<div class="toast-body">
+					Ocorreu um erro ao carregar os detalhes do armazém. Por favor, tente novamente mais tarde.
+				</div>
+			</div>
+		</div>
+
 		<div class="customizer-links" id="setdata">
 			<ul class="sticky-sidebar">
 				<li class="sidebar-icons">
