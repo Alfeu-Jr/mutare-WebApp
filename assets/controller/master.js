@@ -47,19 +47,20 @@ export class Lista {
       lengthMenu: this.lengthMenu,
       orderCellsTop: true, // permitir somente o header de fazer o sorting
       fixedHeader: true,
-      pagingType: 'first_last_numbers',
+      // pagingType: 'first_last_numbers',
       searchDelay: this.searchDelay,
       serverSide: true,
       serverMethod: 'post',
       select: true,
       stateSave: true,
+     
       stateLoadParams: function (settings, data) {
-        data.search.search = ''; //limpa filtro geral
+        data.search.search = ''; // limpa filtro geral
 
-        data.columns.forEach((columns) => {
-          columns.search = ''; // limpa o filtro de coluna
+        data.columns.forEach((column) => {
+            // Garante que search é um objeto com a propriedade search como string
+            column.search = { search: '' };
         });
-
       },
       order: [Array.isArray(this.sort) > 0 ? this.sort : []],
 
@@ -74,8 +75,12 @@ export class Lista {
           text: 'Mostrar/Ocultar',
         }],
       language: {
-        url: 'assets/plugins/datatable/pt.json'
+        url: 'assets/plugins/datatable/pt.json',
       },
+       paginate: {
+              next: ' <i class=" fa fa-angle-right"></i>',
+              previous: '<i class="fa fa-angle-left"></i> '
+            },
       ajax: {
         url: self.url,
         data: this.adicionarDadosRequest(this.dataRequest)
@@ -113,6 +118,7 @@ export class Lista {
         }
       }
       ],
+      
 
       // layout: {
       //   bottomStart: {

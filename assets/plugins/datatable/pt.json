@@ -14,8 +14,8 @@
 	"sUrl":          "",
 	"oPaginate": {
 	    "sFirst":    "Primeiro",
-	    "sPrevious": "Anterior",
-	    "sNext":     "Seguinte",
+	    "sPrevious": "<i class='fa fa-angle-left'></i> ",
+	    "sNext":     " <i class='fa fa-angle-right'></i> ",
 	    "sLast":     "Último"
 	},
 	"oAria": {

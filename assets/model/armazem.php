@@ -144,12 +144,12 @@ class Armazem
                     // FROM mutare_solucoes.armazem a 
                     // Left outer join mutare_solucoes.funcionario f ON ( a.responsavel = f.id  ) where {$condicao}) as T";
 
-                    $table = "(SELECT a.armazem AS armazem, f.nome AS responsavel, COUNT(p.id) AS total_produtos, SUM(ia.quantidade) AS stock_total, as a.activo 
+                    $table = "(SELECT a.armazem AS armazem, f.nome AS responsavel, COUNT(p.id) AS total_produtos, SUM(ia.quantidade) AS stock_total, a.activo as activo
                     FROM mutare_solucoes.armazem a 
                     LEFT OUTER JOIN mutare_solucoes.funcionario f ON a.responsavel = f.id 
                     LEFT OUTER JOIN mutare_solucoes.item_armazem ia ON a.id = ia.armazem_id 
-                    LEFT OUTER JOIN mutare_solucoes.produto p ON ia.produto_id = p.id 
-                    GROUP BY a.id, f.nome where {$condicao}) as T";
+                    LEFT OUTER JOIN mutare_solucoes.produto p ON ia.produto_id = p.id where {$condicao}
+                    GROUP BY a.id, f.nome) as T";
         // $table = "(SELECT r.id, r.centro, r.periodo, r.ano, r.date_insert, dr.descricao, dr.periodo as periodo_estatistico, s.sector, r.valido, r.filename as filename_padrao,
         //   (SELECT fr.documento_reconhecido FROM filename_relatorio fr WHERE fr.relatorio = r.id ORDER BY fr.id DESC LIMIT 1) as documento_reconhecido,
         // echo $table;
@@ -165,6 +165,9 @@ class Armazem
         //Resultados
         $condicao2 = $searchQuery . ' order by ' . $columnName . ' ' . $columnsortOrder . ' limit ' . $row . ',' . $rowperpage;
 
+        // print($condicao2);
+        // print($table);
+
         $response = $crud->readDataTable("", $table, $condicao2);
 
         $len = 0;
@@ -175,16 +178,14 @@ class Armazem
         if ($len > 0) {
             for ($i = 0; $i < $len; $i++) {
                 // Botão que permite visualizar os detalhe
-                $action = "
-                    <div class='edit-delete-action'>
+                $action = "<div class='edit-delete-action'>
                         <a class='me-2 edit-icon p-2' href='#' data-bs-toggle='modal' data-bs-target='#edit-units'>
                             <i data-feather='eye' class='feather-eye'></i>
                         </a>
                         <a class='me-2 p-2' href='#' data-bs-toggle='modal' data-bs-target='#edit-units'>
                             <i data-feather='edit' class='feather-edit'></i>
                         </a>
-                    </div>
-                ";
+                    </div>";
                 $cor = $response[$i]['activo'] == 1 ? 'badge-linesuccess' : 'badge-linedanger ';
                 $activo = $response[$i]['activo'] == 1 ? 'Activo' : 'Desactivado';
 
@@ -211,7 +212,7 @@ class Armazem
                 // Verificar se as chaves existem e não são nulas
                 if (isset($response[$i]) && !empty($response[$i])) {
                     $response[$i]['action'] = $action;
-                    $response[$i]['estado'] = $ $estado;
+                    $response[$i]['activo'] = $estado;
                     // $estado
                 }
             }

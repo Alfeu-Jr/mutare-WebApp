@@ -37,7 +37,7 @@ class listaArmazem extends Lista{
       self = this;
     var condicao = [];
     // if(self.ano == ''){
-    //   condicao = [['valido', 1],['s.id', self.sector]]
+      condicao = [['activo', ],['s.id', self.sector]]
     // }
     // else{
     //   condicao = [['valido', 1],['s.id', self.sector],['ano', self.ano]]
@@ -50,18 +50,18 @@ class listaArmazem extends Lista{
       'responsavel',
       'total_produtos',
       'stock_total',
-      'estado',
+      'activo',
       'action'];
 
-    this.sort = [1, 'desc'];
+    this.sort = [0, 'desc'];
 
     this.dataRequest = {
       request: "listar"
     //   condicao: condicao
     };
-    this.notOrderable = [6];
+    this.notOrderable = [5];
     // this.dateType = [4];
-    this.collumnFilter = [0, 1, 2, 3, 4, 5];
+    this.collumnFilter = [0, 1, 2, 3, 4];
 
     this.lista();
 
