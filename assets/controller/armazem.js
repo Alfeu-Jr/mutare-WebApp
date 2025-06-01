@@ -5,21 +5,31 @@ class listaArmazem extends Lista{
 		//   console.log('ano') 
         super();
 		self = this;
-		this.init();
+		this.init(); 
 
     
     // bootstrap.Toast(document.getElementById('dangerToast')).show()
-    const toast = new bootstrap.Toast(document.getElementById('dangerToast'))
-        toast.show()
-      /* Danger toast js */
-      // const dangerToast = document.getElementById('dangerToastBtn')
-      // const dangertoastExample = document.getElementById('dangerToast')
-      // if (dangerToast) {
-      //   dangerToast.addEventListener('click', () => {
-      //     const toast = new bootstrap.Toast(dangertoastExample)
-      //     toast.show()
-      //   })
-      // }
+    // const toast = new bootstrap.Toast(document.getElementById('dangerToast'))
+    //     toast.show()
+
+      
+      const conteudo = [
+      ["CD", "Cabo Delgado"],
+      ["GZ", "Gaza"],
+      ["IB", "Inhambane"],
+      ["MN", "Manica"],
+      ["MC", "Maputo Cidade"],
+      ["MP", "Matola"],
+      ["NP", "Nampula"],
+      ["NS", "Niassa"],
+      ["SF", "Sofala"],
+      ["TT", "Tete"],
+      ["ZA", "Zambézia"]
+      ];
+
+    const select = document.getElementById('slc_provincia');
+    this.fillSelectFromArray(select, conteudo);
+
     }
 
     init(){ 
@@ -54,7 +64,50 @@ class listaArmazem extends Lista{
     }	
 
     visualizar_armazem(){
-      
+//       function extrairValoresArmazem() {
+//     const nome = $('#nome_armazem').val().trim();
+//     const responsavel = $('#responsavel_armazem').val();
+//     const telefone = $('#telefone_armazem').val().trim();
+//     const provincia = $('#slc_provincia').val();
+//     const bairro = $('#bairro_armazem').val().trim();
+//     const avenida = $('#avenida_armazem').val().trim();
+//     const rua = $('#rua_armazem').val().trim();
+
+//     // Validação simples
+//     if (!nome) {
+//         alert('Preencha o Nome do Armazém');
+//         return null;
+//     }
+//     if (!responsavel || responsavel === "Escolher") {
+//         alert('Selecione o Responsável');
+//         return null;
+//     }
+//     if (!telefone) {
+//         alert('Preencha o Número de Telefone');
+//         return null;
+//     }
+//     if (!provincia || provincia === "Escolher") {
+//         alert('Selecione a Província');
+//         return null;
+//     }
+
+//     // Retorna objeto com os valores
+//     return {
+//         nome,
+//         responsavel,
+//         telefone,
+//         provincia,
+//         bairro,
+//         avenida,
+//         rua
+//     };
+// }
+
+// // Exemplo de uso:
+// const dados = extrairValoresArmazem();
+// if (dados) {
+//     console.log(dados);
+// }
     }
     
 

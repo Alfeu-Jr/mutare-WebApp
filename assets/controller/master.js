@@ -420,6 +420,30 @@ export class Lista {
     return uniqueValues;
   }
 
+  fillSelectFromArray(elemento, conteudo) {
+    // Limpa opções existentes
+    while (elemento.options.length > 0) {
+        elemento.remove(0);
+    }
+    // Adiciona opção padrão
+    const defaultOption = document.createElement('option');
+    defaultOption.selected = true;
+    defaultOption.disabled = true;
+    defaultOption.value = "";
+    defaultOption.textContent = "Selecione";
+    elemento.appendChild(defaultOption);
+
+    // Adiciona novas opções
+    conteudo.forEach(item => {
+        if (Array.isArray(item) && item.length >= 2) {
+            const optionElement = document.createElement('option');
+            optionElement.value = item[0];
+            optionElement.textContent = item[1];
+            elemento.appendChild(optionElement);
+        }
+    });
+}
+
 }
 // file2.js
 export class selectFiller {
@@ -480,6 +504,8 @@ export class selectFiller {
       })
     })
   }
+
+
 }
 
 export class toasterAlerta {
