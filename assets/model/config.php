@@ -15,7 +15,7 @@ try {
     }
 } catch (exception $ex) {
     //database cloud
-   $host = "DESKTOP-506I64Q";
+   $host = "192.168.18.219";
    $port = 3306;
 $user = "root";
 $password = "Pr!m&D!r&ct0ry";

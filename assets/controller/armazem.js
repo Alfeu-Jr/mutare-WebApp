@@ -1,457 +1,653 @@
 import { selectFiller } from './master.js';
 import { Lista } from './master.js';
-class listaArmazem extends Lista{
-    constructor(){
-		//   console.log('ano') 
-        super();
-		self = this;
-		this.init(); 
+class listaArmazem extends Lista {
+  constructor() {
+    //   console.log('ano')
+    super();
+    self = this;
+    this.init();
+    this.dados_armazem;
+
+    this.init_alterarArmazem();
 
     
+  
+  // Exemplo de uso:
+
+
     // bootstrap.Toast(document.getElementById('dangerToast')).show()
     // const toast = new bootstrap.Toast(document.getElementById('dangerToast'))
     //     toast.show()
 
-      
-      const conteudo = [
-      ["CD", "Cabo Delgado"],
-      ["GZ", "Gaza"],
-      ["IB", "Inhambane"],
-      ["MN", "Manica"],
-      ["MC", "Maputo Cidade"],
-      ["MP", "Matola"],
-      ["NP", "Nampula"],
-      ["NS", "Niassa"],
-      ["SF", "Sofala"],
-      ["TT", "Tete"],
-      ["ZA", "Zambézia"]
-      ];
+    // const conteudo = [
+    //   ["CD", "Cabo Delgado"],
+    //   ["GZ", "Gaza"],
+    //   ["IB", "Inhambane"],
+    //   ["MN", "Manica"],
+    //   ["MC", "Maputo Cidade"],
+    //   ["MP", "Matola"],
+    //   ["NP", "Nampula"],
+    //   ["NS", "Niassa"],
+    //   ["SF", "Sofala"],
+    //   ["TT", "Tete"],
+    //   ["ZA", "Zambézia"],
+    // ];
 
-    const select = document.getElementById('slc_provincia');
-    this.fillSelectFromArray(select, conteudo);
+    // const select = document.getElementById("slc_provincia");
+    // this.fillSelectFromArray(select, conteudo);
+  }
 
-    }
+   showToast(title, message) {
+    $('#toast-title').text(title);
+    $('#toast-body').text(message);
+    var toastEl = document.getElementById('jsToast');
+    var toast = new bootstrap.Toast(toastEl);
+    toast.show();
+}
+     showToastWarning(title, message) {
+    $('#toast-warning-title').text(title);
+    $('#toast-warning-body').text(message);
+    var toastEl = document.getElementById('jsToastWarning');
+    var toast = new bootstrap.Toast(toastEl);
+    toast.show();
+}
 
-    init(){ 
+  init() {
+    self = this;
+    this.formcheck();
+    this.nomeTabela = "lista_armazem";
+    this.url = "assets/model/armazem.php";
+    this.colunas = [
+      "armazem",
+      "responsavel",
+      // "cidade",
+      "total_produtos",
+      "stock_total",
+      "activo",
+      "action",
+    ];
 
-      self = this;
-    this.nomeTabela = 'lista_armazem';
-    this.url = 'assets/model/armazem.php';
-    this.colunas = 
-    ['armazem',
-      'responsavel',
-      'total_produtos',
-      'stock_total',
-      'activo',
-      'action'];
-
-    this.sort = [0, 'desc'];
+    this.sort = [0, "desc"];
 
     this.dataRequest = {
-      request: "listar"
+      request: "listar",
     };
     this.notOrderable = [5];
     this.collumnFilter = [0, 1, 2, 3, 4];
 
     this.lista();
 
+    $("#lista_armazem").on("click", ".visualizar-armazem", function () {
+      var id = $(this).data("id");
+      self.carregarArmazem(id);
+      // console.log("assss");
+      // window.open("relatorio/detalhe.php?id_relatorio=" + id, "_self");
+    });
 
-    // $('#datatable-new').on('click', '.detalhe-relatorio', function () {
-    //   var id = $(this).data('id');
-    //   window.open("relatorio/detalhe.php?id_relatorio=" + id, "_self");
+    $("#lista_armazem").on("click", ".alterar-armazem", function () {
+      var id = $(this).data("id");
+      // console.log(id);
+      self.carregarArmazemEdicao(id);
+      // window.open("relatorio/detalhe.php?id_relatorio=" + id, "_self");
+    });
 
+    //faz o reset do formulario do modal de edicao
+    $("#edit-units").on("hidden.bs.modal", function () {
+      $(this).find("form")[0].reset();
+      $(this).find("form").removeClass("was-validated");
+    });
+
+    $("#form_edit_armazem").on("submit", function (e) {
+      e.preventDefault();
+      // Sua lógica aqui
+    });
+
+    $('.telefone-control').on('input', function() {
+      let valor = this.value.replace(/\D/g, '');
+      if (valor.length > 9) valor = valor.slice(0, 9);
+      if (valor.length > 2) {
+          valor = valor.replace(/^(\d{2})(\d{0,3})(\d{0,4})$/, function(_, p1, p2, p3) {
+              let out = p1;
+              if (p2) out += ' ' + p2;
+              if (p3) out += ' ' + p3;
+              return out;
+          });
+      }
+      this.value = valor;
+  });
+
+    //   $('#user2').on('change', function() {
+    //     if ($(this).is(':checked')) {
+    //         // Checkbox is checked
+    //         console.log('Checkbox checked');
+    //     } else {
+    //         // Checkbox is unchecked
+    //         console.log('Checkbox unchecked');
+    //     }
     // });
-    }	
+  }
 
-    visualizar_armazem(){
-//       function extrairValoresArmazem() {
-//     const nome = $('#nome_armazem').val().trim();
-//     const responsavel = $('#responsavel_armazem').val();
-//     const telefone = $('#telefone_armazem').val().trim();
-//     const provincia = $('#slc_provincia').val();
-//     const bairro = $('#bairro_armazem').val().trim();
-//     const avenida = $('#avenida_armazem').val().trim();
-//     const rua = $('#rua_armazem').val().trim();
+  init_alterarArmazem() {
+    self = this;
 
-//     // Validação simples
-//     if (!nome) {
-//         alert('Preencha o Nome do Armazém');
-//         return null;
-//     }
-//     if (!responsavel || responsavel === "Escolher") {
-//         alert('Selecione o Responsável');
-//         return null;
-//     }
-//     if (!telefone) {
-//         alert('Preencha o Número de Telefone');
-//         return null;
-//     }
-//     if (!provincia || provincia === "Escolher") {
-//         alert('Selecione a Província');
-//         return null;
-//     }
+    $("#form_edit_armazem").on("submit", function (event) {
+      
+      event.preventDefault();
+      event.stopPropagation();
 
-//     // Retorna objeto com os valores
-//     return {
-//         nome,
-//         responsavel,
-//         telefone,
-//         provincia,
-//         bairro,
-//         avenida,
-//         rua
-//     };
-// }
+      // Bootstrap validation
+      if (this.checkValidity() === false) {
+        $(this).addClass("was-validated");
+        return;
+      }
+      // Captura dos dados
 
-// // Exemplo de uso:
-// const dados = extrairValoresArmazem();
-// if (dados) {
-//     console.log(dados);
-// }
+      // self.adicionar_armazem();
+      // Exemplo: exibir no console
+      // console.log(self.verificar_alteracao());
+
+      var idArmazem = $(this).find('#edit_id_armazem').val();
+      // console.log(idArmazem);
+      // self.verificar_alteracao();
+      // self.alterar_armazem(idArmazem, self.verificar_alteracao()); 
+
+      const alteracoes = self.verificar_alteracao();
+
+      // console.log(Object.keys(alteracoes).length);
+      if (Object.keys(alteracoes).length > 0) {
+        self.alterar_armazem(idArmazem, alteracoes); 
+      }
+      else {
+        self.showToastWarning('Aviso', 'Nenhum campo foi alterado!');
+      }
+      // else {
+      //     // Tem alterações
+      //     console.log('Alterações:', alteracoes);
+      // }
+
+
+
+      // Aqui você pode enviar via AJAX ou outro processamento
+    });
+  }
+
+  init_adicionarArmazem() {}
+
+  formcheck() {
+    // self =
+    $("#form_add_armazem").on("submit", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Bootstrap validation
+      if (this.checkValidity() === false) {
+        $(this).addClass("was-validated");
+        return;
+      }
+
+      // Captura dos dados
+
+      self.adicionar_armazem();
+      // Exemplo: exibir no console
+      // console.log(dados);
+
+      // Aqui você pode enviar via AJAX ou outro processamento
+    });
+  }
+
+  adicionar_armazem() {
+    self = this;
+    var dadosArmazem = new FormData();
+
+    function pushData(key, value) {
+      const valor = value ?? ""; // Use nullish coalescing operator for cleaner code
+      dadosArmazem.append(key, valor);
     }
+
+    function request(dados) {
+      $.ajax({
+        url: "assets/model/request.php",
+        type: "post",
+        data: dados,
+        dataType: "JSON",
+        processData: false,
+        contentType: false,
+                    success: function (response) {
+                if (response.status == true) {
+                  Swal.fire({
+                    icon: "success",
+                    title: "Armazém Registrado",
+                    html: "O armazém foi guardado com sucesso!",
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    confirmButtonText: "OK",
+                    preConfirm: () => {
+                      $('#lista_armazem').modal('hide');
+                      $('#add-units').modal('hide');
+                      self.tabela.ajax.reload();
+                    }
+                  });
+                  $("#modal-adicionar-categoria").modal("hide");
+                }
+              
+                if (response.status == false) {
+                  console.error("Unknown error code:", response.code);
+                  switch (response.code) {
+                    case 2:
+                      Swal.fire({
+                        icon: "warning",
+                        title: "Erro ao Registrar o Armazém",
+                        html: "Nome de ficheiro <b>inválido</b>. <br> Altere o <b>nome do ficheiro</b> e tente novamente.",
+                      });
+                      break;
+                    case 1:
+                      Swal.fire({
+                        icon: "error",
+                        title: "Nome já registrado",
+                        text: "Já existe um armazém cadastrado com este nome. Por favor, escolha outro nome.",
+                      });
+                      break;
+                    case 3:
+                      Swal.fire({
+                        icon: "error",
+                        title: "Erro ao Registrar o Armazém",
+                        html: errorMessage,
+                      });
+                      break;
+                    default:
+                      $("#modal-categoria-erro").modal("show");
+                      Swal.fire({
+                        icon: "error",
+                        title: "Erro ao Registrar o Armazém",
+                        html: "Ação não reconhecida ou não implementada. Por favor, tente novamente ou contacte o administrador do sistema.",
+                      });
+                      console.error("Unknown error code:", response.code);
+                  }
+                }
+              },
+              error: function (response) {
+                Swal.fire({
+                  icon: "error",
+                  title: "Erro ao Registrar o Armazém",
+                  html:
+                    "Por favor <b><i>retorne</i></b> ao Menu Principal e tente novamente." +
+                    "<p></p> Se o erro persistir, contacte o Administrador do Sistema para resolver o problema.",
+                });
+              
+                $("#modal-categoria-erro").modal("show");
+                console.log("Erro no sistema, Erro - ", response.responseText);
+              },
+      });
+    }
+
+    pushData("request_geral", "adicionar");
+
+    const campos = [
+      "armazem",
+      "responsavel",
+      "contacto",
+      "provincia_localizacao",
+      "bairro_localizacao",
+      "avenida_localizacao",
+      "rua_localizacao",
+    ];
+    const valores = [
+      $("#nome_armazem").val(),
+      $("#txt_responsavel_armazem").val(),
+      $("#txt_telefone_armazem").val(),
+      $("#slc_provincia").val(),
+      $("#bairro_armazem").val(),
+      $("#avenida_armazem").val(),
+      $("#rua_armazem").val(),
+    ];
+
+    Array.from(campos).forEach(function (file) {
+      pushData("coluna[]", file);
+    });
+
+    Array.from(valores).forEach(function (file) {
+      pushData("valores[]", file);
+    });
+
+    const condicao = [
+      ["armazem", $("#nome_armazem").val()]
+    ];
+
+    condicao.forEach(function (condition, index) {
+      dadosArmazem.append(`condicao[${index}][]`, condition[0]); // key
+      dadosArmazem.append(`condicao[${index}][]`, condition[1]); // value
+    });
+
+    pushData("tabela", "armazem");
+
+    request(dadosArmazem);
+  }
+
+  // }
+
+  // // Exemplo de uso:
+  // const dados = extrairValoresArmazem();
+  // if (dados) {
+  //     console.log(dados);
+  // }
+  // }
+
+  async carregarArmazem(id_armazem) {
+    self = this;
+
+    try {
+      await $.ajax({
+        url: "assets/model/armazem.php",
+        method: "POST",
+        data: { request: "detalhe", id_armazem: id_armazem },
+        dataType: "json",
+        success: function (response) {
+          if (response.status == true) {
+            // console.log(response.data.armazem);
+            $("#view_armazem").val(response.data.armazem);
+            $("#view_responsavel").val(response.data.responsavel);
+            $("#view_numero_telefones").val(response.data.contacto);
+            $("#view_enderoco").val(response.data.provincia_localizacao);
+            $("#view_provincia").val(response.data.bairro_localizacao);
+            $("#view_cidade").val(response.data.avenida_localizacao);
+            $("#edit_id_armazem").val(response.data.id);
+          } else {
+            switch (response.code) {
+              case 2:
+                console.log(response.code);
+                Swal.fire({
+                  icon: "warning",
+                  title: "Erro ao Visualizar Armazém",
+                  // html: 'Nome de Ficheiro <b>Inválido</b> <p></p> Altere o <b>nome do ficheiro</b> e tente novamente</p>'
+                });
+                break;
+              case 1:
+                Swal.fire({
+                  icon: "warning",
+                  title: "Erro ao Visualizar Armazém",
+                  // html: 'Nome de Ficheiro <b>Inválido</b> <p></p> Altere o <b>nome do ficheiro</b> e tente novamente</p>'
+                });
+                break;
+              // modal-categoria-duplicada
+              // $('#modal-categoria-duplicada').modal('show');
+              // break;
+              case 3:
+                Swal.fire({
+                  icon: "error",
+                  title: "Erro ao Visualizar Armazém",
+                  html: errorMessage,
+                });
+                break;
+              default:
+                Swal.fire({
+                  icon: "error",
+                  title: "Erro ao Visualizar Armazém",
+                  html: "Ação não reconhecida ou não implementada. Por favor, tente novamente ou contacte o administrador do sistema.",
+                });
+                console.error("Unknown error code:", response.code);
+            }
+            console.error("Unknown error code:", response.code);
+          }
+        },
+        error: function (response) {
+          Swal.fire({
+            icon: "error",
+            title: "Detalhes do Armazem",
+            html: "Não foi possível carregar os detalhes do armazém. Por favor, tente novamente ou contacte o administrador do sistema.",
+          });
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async carregarArmazemEdicao(id_armazem) {
+    self = this;
+
+    try {
+      await $.ajax({
+        url: "assets/model/armazem.php",
+        method: "POST",
+        data: { request: "detalhe", id_armazem: id_armazem },
+        dataType: "json",
+        success: function (response) {
+          if (response.status == true) {
+            this.dados_armazem = null;
+            self.dados_armazem = response.data;
+            console.log(response.data.armazem);
+            $("#edit_nome_armazem").val(response.data.armazem);
+            $("#edit_txt_responsavel_armazem").val(response.data.responsavel);
+            $("#edit_txt_telefone_armazem").val(response.data.contacto);
+            $("#edit_slc_provincia")
+              .val(response.data.provincia_localizacao)
+              .change();
+            $("#edit_bairro_armazem").val(response.data.bairro_localizacao);
+            $("#edit_avenida_armazem").val(response.data.avenida_localizacao);
+            $("#edit_rua_armazem").val(response.data.rua_localizacao);
+            // response.data.activo ? $("#user2").prop("checked", true) : $("#user2").prop("checked", false);
+              if(response.data.activo == 1){
+                $("#user2").prop("checked", true);
+              }else{
+                $("#user2").prop("checked", false);
+              }
+              $("#edit_id_armazem").val(id_armazem);
+              // console.log($('#form_edit_armazem').find('#edit_id_armazem').val());
+              // console.log(id_armazem);
+            // console.log(response.data.rua_localizacao);
+          } else {
+            switch (response.code) {
+              case 2:
+                console.log(response.code);
+                Swal.fire({
+                  icon: "warning",
+                  title: "Erro ao Visualizar Armazém",
+                  // html: 'Nome de Ficheiro <b>Inválido</b> <p></p> Altere o <b>nome do ficheiro</b> e tente novamente</p>'
+                });
+                break;
+              case 1:
+                Swal.fire({
+                  icon: "warning",
+                  title: "Erro ao Visualizar Armazém",
+                  // html: 'Nome de Ficheiro <b>Inválido</b> <p></p> Altere o <b>nome do ficheiro</b> e tente novamente</p>'
+                });
+                break;
+              // modal-categoria-duplicada
+              // $('#modal-categoria-duplicada').modal('show');
+              // break;
+              case 3:
+                Swal.fire({
+                  icon: "error",
+                  title: "Erro ao Visualizar Armazém",
+                  html: errorMessage,
+                });
+                break;
+              default:
+                Swal.fire({
+                  icon: "error",
+                  title: "Erro ao Visualizar Armazém",
+                  html: "Ação não reconhecida ou não implementada. Por favor, tente novamente ou contacte o administrador do sistema.",
+                });
+                console.error("Unknown error code:", response.code);
+            }
+            console.error("Unknown error code:", response.code);
+          }
+        },
+        error: function (response) {
+          Swal.fire({
+            icon: "error",
+            title: "Detalhes do Armazem",
+            html: "Não foi possível carregar os detalhes do armazém. Por favor, tente novamente ou contacte o administrador do sistema.",
+          });
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  verificar_alteracao() {
+
+    function compararDados(novosDados, dadosExistentes) {
+      let dadosRecentes = {};
+
+      for (const key in novosDados) {
+        if (novosDados[key] != dadosExistentes[key]) {
+          // console.log(
+          //   `Campo alterado: ${key}\nValor original: ${dadosExistentes[key]}\nNovo valor: ${novosDados[key]}`
+          // );
+          dadosRecentes[key] = novosDados[key];
+        }
+      }
+      return dadosRecentes;
+    }
+
+    // const periodo_estatistico = $('#slc_periodo').val();
+    let novosDados = {
+      armazem: $("#edit_nome_armazem").val(),
+      responsavel: $("#edit_txt_responsavel_armazem").val(),
+      contacto: $("#edit_txt_telefone_armazem").val(),
+      provincia_localizacao: $("#edit_slc_provincia").val(),
+      bairro_localizacao: $("#edit_bairro_armazem").val(),
+      avenida_localizacao: $("#edit_avenida_armazem").val(),
+      rua_localizacao: $("#edit_rua_armazem").val(),
+      activo: $("#user2").is(":checked") ? 1 : 0,
+    };
+
+    let dadosExistentes = {
+      armazem: self.dados_armazem.armazem,
+      responsavel: self.dados_armazem.responsavel,
+      contacto: self.dados_armazem.contacto,
+      provincia_localizacao: self.dados_armazem.provincia_localizacao,
+      bairro_localizacao: self.dados_armazem.bairro_localizacao,
+      avenida_localizacao: self.dados_armazem.avenida_localizacao,
+      rua_localizacao: self.dados_armazem.rua_localizacao,
+      activo: self.dados_armazem.activo,
+    };
+
+    return compararDados(novosDados, dadosExistentes);
+  }
+
+  alterar_armazem(id_armazem, dados) {
+    self = this;
+    var dadosArmazem = new FormData();
+
+    function pushData(key, value) {
+      const valor = value ?? ""; // Use nullish coalescing operator for cleaner code
+      dadosArmazem.append(key, valor);
+    }
+
+    function request(dados) {
+      $.ajax({
+        url: "assets/model/request.php",
+        type: "post",
+        data: dados,
+        dataType: "JSON",
+        processData: false,
+        contentType: false,
+                success: function (response) {
+          if (response.status == true) {
+            Swal.fire({
+              icon: "success",
+              title: "Alteração do Armazém",
+              html: "Os dados do armazém foram alterados com sucesso!",
+              allowEscapeKey: false,
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+              preConfirm: () => {
+                $('#edit-units').modal('hide');
+                // ('#lista_armazem').ajax.reload();
+                self.tabela.ajax.reload();
+              }
+            });
+            $("#modal-adicionar-categoria").modal("hide");
+          }
+        
+          if (response.status == false) {
+            console.error("Unknown error code:", response.code);
+            switch (response.code) {
+              case 2:
+                Swal.fire({
+                  icon: "warning",
+                  title: "Nome já registrado",
+                        text: "Já existe um armazém cadastrado com este nome. Por favor, escolha outro nome.",
+                });
+                break;
+              case 1:
+                $("#modal-categoria-duplicada").modal("show");
+                break;
+              case 3:
+                Swal.fire({
+                  icon: "error",
+                  title: "Erro na Alteração do Armazém",
+                  html: errorMessage,
+                });
+                break;
+              default:
+                $("#modal-categoria-erro").modal("show");
+                Swal.fire({
+                  icon: "error",
+                  title: "Erro na Alteração do Armazém",
+                  html: "Ação não reconhecida ou não implementada. Por favor, tente novamente ou contacte o administrador do sistema.",
+                });
+                console.error("Unknown error code:", response.code);
+            }
+          }
+        },
+        error: function (response) {
+          Swal.fire({
+            icon: "error",
+            title: "Erro na Alteração do Armazém",
+            html: "Não foi possível alterar os dados do armazém. Por favor, tente novamente ou contacte o administrador do sistema.",
+          });
+        
+          $("#modal-categoria-erro").modal("show");
+          console.log("Erro no sistema, Erro - ", response.responseText);
+        },
+      });
+    }
+
+    pushData("request_geral", "alterar");
+
+    // const campos = [
+    //   "armazem",
+    //   "responsavel",
+    //   "contacto",
+    //   "nnprovincia_localizacao",
+    //   "bairro_localizacao",
+    //   "avenida_localizacao",
+    //   "rua_localizacao",
+    // ];
+    // pushData("id", "id");
+    pushData("id", id_armazem);
+    
+    //caso seja alterado o nome do armazem
+    //valida se o armazem ja existe
+    for (const key in dados) {
+      pushData("coluna[]", key);
+      pushData("valores[]", dados[key]);
+
+      if(key == 'armazem'){
+        dadosArmazem.append(`condicao[0][]`, "armazem"); // key
+        dadosArmazem.append(`condicao[0][]`, dados[key]); // value
+      }
+    }
+
     
 
-    // async carregarArmazem(id_armazem) {
-    //   self = this;
-    //   // var ficheiro;
-    //   // var documento_reconhecido;
-  
-    //   try {
-    //     await $.ajax({
-    //       url: "assets/model/armazem.php",
-    //       method: "POST",
-    //       data: { request: 'detalhe', id_armazem: id_armazem,
-    //       dataType: "json",
-  
-    //       success: function (response) {
-    //         if (response.status == true) {
-    //           self.dados_armazem = response.data;
-  
-    //           $('#txt_armazem').text(response.data.armazem);
-    //           $('#txt_responsavel').text(response.data.responsavel);
-    //           $('#txt_numero_telefones').text(response.data.numero_telefones);
-    //           $('#txt_enderoco').text(response.data.enderoco);
-    //           $('#txt_provincia').text(response.data.provincia);
-    //           $('#txt_cidade').text(response.data.cidade);
-  
-    //           // $('#txt_tipo_relatorio').text(response.data.localizacao_relatorio);
-             
-    //           // documento_reconhecido = response.data.documento_reconhecido;
-  
-    //           // $('#txt_documento_reconhecido').text(documento_reconhecido);
-  
-    //           //Secção dos Anexos 
-  
-    //           // ficheiro = "arquivos/relatorio/" + response.data.localizacao_relatorio + "/" + response.data.filename;
-  
-    //           // //verifica se o formato do ficheiro é compatível
-    //           // if((response.data.filename.toLowerCase()).includes('.pdf')){
-    //           //   $('#ficheiro_relatorio').attr('src', ficheiro);
-    //           //   $('#ver_ficheiro').attr('href', ficheiro);
-    //           // }else{
-    //           //   $('.ficheiro-compativel').each(function () {
-    //           //     $(this).addClass("d-none");
-    //           //   });
-    //           //   $('.ficheiro-incompativel').removeClass("d-none");
-    //           // }
-  
-    //           // $('#transferir_ficheiro').attr('href', ficheiro);
-    //           // $('#transferir_ficheiro').attr('download', response.data.filename_padrao);
-  
-    //           // console.log(response.user_id);
-  
-    //           // const funcao = response.user_funcao.toLowerCase();
-    //           // if (response.data.user_insert == response.user_id || funcao == 'administrador' || funcao == 'm&t'|| funcao == 'it') {
-    //           //   $(".alterar-relatorio").removeClass("d-none");
-    //           }
-    //         }
-  
-    //       },
-    //       erro: function (response) {
-    //         Swalig.fire({
-    //           icon: "error",
-    //           title: "Detalhes do Armazem",
-    //           html: "Ocorreu um erro ao guardar os dados do relatório, por favor <b><i>retorne</i></b> ao Menu Principal e tente Novamente."
-    //         });
-    //       }
-    //     });
-    //   } catch (error) {
-    //     console.error(error);
-    //   }
-    // }
+   
+
+    // condicao.forEach(function (condition, index) {
+    //   dadosArmazem.append(`condicao[${index}][]`, condition[0]); // key
+    //   dadosArmazem.append(`condicao[${index}][]`, condition[1]); // value
+    // });
+
+    pushData("tabela", "armazem");
+
+    request(dadosArmazem);
+  }
 }
 
-
-// class adicionarProduto extends selectFiller {
-//     constructor(){
-//         super();
-//         self = this;
-//         // document.addEventListener("DOMContentLoaded", function() {
-
-//             this.init();
-//         // });
-
-//     }
-
-//     async init(){
-      
-//         await this.getSelect('armazem', 'slc_armazem', ['armazem', 'armazem', 'id']);
-//         await this.getSelect('categoria', 'slc_categoria', ['categoria', 'categoria', 'id']);
-
-//       $('#submeter-adicionar-categoria').on('click', function () {
-//         $("#txt_nova_categoria").val().trim().length > 0 ? self.guardar_categoria() : true;
-//       });
-//           $('#form_adicionarproduto').on('submit', function (e) {
-//         e.preventDefault();
-//         validar_produto() ? guardar_categoria() : true;
-//       })
-//     }
-    
-//     getSelect(tabela, elementoId, keys) {
-//         let self = this;
-//         return new Promise((resolve, reject) => {
-//             var element = document.getElementById(elementoId);
-//             // console.log(document.getElementById('slc_armazem'));
-//             $.ajax({
-//                 url: 'assets/model/request.php',
-//                 type: 'post',
-//                 data: { request_geral: 'listar_slc', tabela: tabela },
-//                 dataType: 'json',
-//                 success: function (response) {
-//                     self.fillSelect(element, response, keys);
-//                     resolve();
-//                 },
-//                 error: function (error) {
-//                     reject(error);
-//                 }
-//             })
-//         });
-//       }
-
-// // guardar_categoria() {
-// //     self = this;
-// //     var dadosCategoria = new FormData();
-
-// //     function pushData(key, value) {
-// //       const valor = value ?? ""; // Use nullish coalescing operator for cleaner code
-// //       dadosCategoria.append(key, valor);
-// //     }
-
-// //     function request(dados) {
-// //       $.ajax({
-// //         url: 'assets/model/categoria.php',
-// //         type: "post",
-// //         data: dados,
-// //         dataType: "JSON",
-// //         processData: false,
-// //         contentType: false,
-// //         success: function (response) {
-// //           if (response.status == true) {
-// //             // Swal.fire({
-// //             //   icon: "success",
-// //             //   title: "Registrar o Centro",
-// //             //   html: "O centro foi guardado com sucesso!",
-// //             //   allowEscapeKey: false,
-// //             //   allowOutsideClick: false,
-// //             //   confirmButtonText: "OK",
-// //             //   preConfirm: () => {
-// //             //     $('#modal_novo_centro').modal('hide');
-// //             //     self.tabela.ajax.reload();
-// //             //   }
-// //             // });
-// //             $('#modal-adicionar-categoria').modal('hide')
-// //           }
-
-// //           if (response.status == false) {
-// //             console.error("Unknown error code:", response.code);
-// //             switch (response.code) {
-// //               case 2:
-// //                 console.log(response.code);
-// //                 Swal.fire({
-// //                   icon: "warning",
-// //                   title: "Erro ao Registrar o Centro",
-// //                   html: 'Nome de Ficheiro <b>Inválido</b> <p></p> Altere o <b>nome do ficheiro</b> e tente novamente</p>'
-// //                 });
-// //                 break;
-// //               case 1:
-// //                 // modal-categoria-duplicada
-// //                 $('#modal-categoria-duplicada').modal('show');
-// //               break;;
-// //               case 3:
-// //                 Swal.fire({
-// //                   icon: "error",
-// //                   title: "Erro ao Registrar o Centro",
-// //                   html: errorMessage
-// //                 });
-// //                 break;
-// //               default:
-// //                 $('#modal-categoria-erro').modal('show')
-// //                 console.error("Unknown error code:", response.code);
-// //             }
-// //           }
-// //         },
-// //         error: function (response) {
-// //           $('#modal-categoria-erro').modal('show');
-// //           console.log('Erro no sistemaa, Erro - ',response.responseText);
-// //         }
-// //       });
-// //     }
-
-// //     pushData("request", 'guardar');
-// //     // pushData("conteudo", [["categoria", $("#txt_nova_categoria").val()]]);
-// //     // pushData("condicao", [['categoria', $("#txt_nova_categoria").val()]]);
-// //     pushData("categoria", $("#txt_nova_categoria").val());
-// //     // pushData("provincia", $("#slc_provincia").val());
-// //     // pushData("distrito", $("#txt_distrito").val());
-
-// //     request(dadosCategoria);
-// //   }
-
-// //   guardar_produto() {
-// //  let formData = new FormData();
-
-// //         // Captura dos valores dos campos
-// //         formData.append('armazem', $('#slc_armazem').val());
-// //         formData.append('nome_produto', $('#txt_nomeproduto').val().trim());
-// //         formData.append('marca_produto', $('#txt_marcaproduto').val().trim());
-// //         formData.append('categoria', $('#slc_categoria').val());
-// //         formData.append('tipo_venda', $('#slc_tipovenda').val());
-// //         formData.append('quantidade', $('#txt_quantidade').val());
-// //         formData.append('preco', $('#txt_preco').val().replace(',', '.'));
-// //         formData.append('peso', $('#txt_peso').val());
-// //         formData.append('quantidade_alerta', $('#txt_quantidaalerta').val());
-// //         formData.append('data_fabricacao', $('#txt_datafabricacao').val());
-// //         formData.append('validade', $('#txt_validade').val());
-// //         formData.append('descricao', $('#txt_descricao').val());
-
-// //         // Se houver campos de imagem:
-// //         let fileInput = $('#form_adicionarproduto input[type="file"]')[0];
-// //         if (fileInput && fileInput.files.length > 0) {
-// //             for (let i = 0; i < fileInput.files.length; i++) {
-// //                 formData.append('imagens[]', fileInput.files[i]);
-// //             }
-// //         }
-
-// //         // Adicione outros campos conforme necessário
-
-// //         $.ajax({
-// //             url: 'assets/model/produto.php',
-// //             type: 'POST',
-// //             data: formData,
-// //             processData: false,
-// //             contentType: false,
-// //             dataType: 'json',
-// //             success: function (response) {
-// //                 if (response.status === true) {
-// //                     Swal.fire({
-// //                         icon: 'success',
-// //                         title: 'Produto adicionado com sucesso!',
-// //                         confirmButtonText: 'OK'
-// //                     }).then(() => {
-// //                         // Redirecionar ou limpar formulário
-// //                         window.location.reload();
-// //                     });
-// //                 } else {
-// //                     Swal.fire({
-// //                         icon: 'error',
-// //                         title: 'Erro ao adicionar produto',
-// //                         html: response.mensagem || 'Ocorreu um erro ao salvar o produto.'
-// //                     });
-// //                 }
-// //             },
-// //             error: function (xhr) {
-// //                 Swal.fire({
-// //                     icon: 'error',
-// //                     title: 'Erro de sistema',
-// //                     html: xhr.responseText || 'Ocorreu um erro inesperado.'
-// //                 });
-// //             }
-// //         });
-// //   }
-// //   validar_produto() {
-// //     let valido = true;
-// //     let mensagens = [];
-
-// //     // Armazém
-// //     if (!$('#slc_armazem').val()) {
-// //         valido = false;
-// //         mensagens.push('Selecione o Armazém.');
-// //     }
-
-// //     // Nome do Produto
-// //     if (!$('#txt_nomeproduto').val() || !$('#txt_nomeproduto').val().trim()) {
-// //         valido = false;
-// //         mensagens.push('O nome do produto é obrigatório.');
-// //     }
-
-// //     // Marca do Produto
-// //     if (!$('#txt_marcaproduto').val() || !$('#txt_marcaproduto').val().trim()) {
-// //         valido = false;
-// //         mensagens.push('A marca do produto é obrigatória.');
-// //     }
-
-// //     // Categoria
-// //     if (!$('#slc_categoria').val()) {
-// //         valido = false;
-// //         mensagens.push('Selecione a categoria.');
-// //     }
-
-// //     // Tipo de Venda
-// //     if (!$('#slc_tipovenda').val()) {
-// //         valido = false;
-// //         mensagens.push('Selecione o tipo de venda.');
-// //     }
-
-// //     // Quantidade
-// //     let quantidade = $('#txt_quantidade').val();
-// //     if (!quantidade || isNaN(quantidade) || Number(quantidade) <= 0) {
-// //         valido = false;
-// //         mensagens.push('A quantidade deve ser maior que zero.');
-// //     }
-
-// //     // Preço
-// //     let preco = $('#txt_preco').val();
-// //     if (!preco || isNaN(preco.replace(',', '.')) || Number(preco.replace(',', '.')) <= 0) {
-// //         valido = false;
-// //         mensagens.push('Introduza um preço válido.');
-// //     }
-
-// //     // Peso Total
-// //     let peso = $('#txt_peso').val();
-// //     if (peso && (isNaN(peso) || Number(peso) < 0)) {
-// //         valido = false;
-// //         mensagens.push('O peso total não pode ser negativo.');
-// //     }
-
-// //     // Quantidade Mínima para Alerta
-// //     let alerta = $('#txt_quantidaalerta').val();
-// //     if (alerta && (isNaN(alerta) || Number(alerta) < 0)) {
-// //         valido = false;
-// //         mensagens.push('A quantidade mínima para alerta não pode ser negativa.');
-// //     }
-
-// //     // Descrição
-// //     let descricao = $('#txt_descricao').val();
-// //     if (descricao && descricao.length > 60) {
-// //         valido = false;
-// //         mensagens.push('A descrição deve ter no máximo 60 caracteres.');
-// //     }
-
-// //     if (!valido) {
-// //         Swal.fire({
-// //             icon: 'error',
-// //             title: 'Erro de Validação',
-// //             html: mensagens.join('<br>'),
-// //             confirmButtonText: 'OK'
-// //         });
-// //     }
-
-// //     return valido;
-// // }
-
-
-
-// }
 
 
  $(document).ready(function () {

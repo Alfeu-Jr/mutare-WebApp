@@ -1,24 +1,24 @@
-    <?php
+<?php
 include 'config.php';
 include 'crud.php';
 include 'request.php';
 
 
 $crud = new crud();
-$armazem = new armazem();
+$produto = new produto();
 $request = new Request();
 $postData = [];
 
 if (isset($_POST['request'])) {
 
-    $postData = $armazem->mysqliEscape($_POST);
+    $postData = $produto->mysqliEscape($_POST);
 
     switch ($_POST['request']) {
         // case 'guardar':
         //     $response = $relatorio->guardar();
         //     break;
         case 'listar':
-            $response = $armazem->listar();
+            $response = $produto->listar();
             break;
             
         case 'adicionarr':
@@ -26,7 +26,7 @@ if (isset($_POST['request'])) {
             break;
 
         case 'detalhe':
-            $response = $armazem->detalhe();
+            $response = $produto->detalhe();
             break;
 
         // case 'descricao_slc':
@@ -62,9 +62,8 @@ if (isset($_POST['request'])) {
     exit;
 }
 
-class Armazem
+class Produto
 {
-
     public function mysqliEscape($string)
     {
         global $crud;
@@ -86,12 +85,12 @@ class Armazem
     public function listar()
     {
         global $crud;
-        global $armazem;
+        global $produto;
 
         $newArray = [];
         $condicao = "true";
 
-        $postData = $armazem->mysqliEscape($_POST);
+        $postData = $produto->mysqliEscape($_POST);
 
         //transforma o array em uma unica string
         if (isset($postData['condicao'])) {
@@ -131,11 +130,11 @@ class Armazem
         // Pesquisa
         $searchQuery = " 1";
         if ($searchValue != '') {
-            $searchQuery = " (armazem like '%" . $searchValue . "%' or
-                                    provincia_localizacao like '%" . $searchValue . "%' or
-                                    rua_localizacao like '%" . $searchValue . "%' or
-                                    bairro_localizacao like '%" . $searchValue . "%' or
-                                    avenida_localizacao like '%" . $searchValue . "%' or
+            $searchQuery = " (produto_codigo like '%" . $searchValue . "%' or
+                                    nome_produto like '%" . $searchValue . "%' or
+                                    marca_produto like '%" . $searchValue . "%' or
+                                    nome_categoria like '%" . $searchValue . "%' or
+                                    nome_subcategoria like '%" . $searchValue . "%' or
                                     responsavel like '%" . $searchValue . "%') ";
             if (!empty($newArray)) {
                 $searchQuery .= " and " . $searchQuery2;
@@ -143,30 +142,32 @@ class Armazem
         } elseif (!empty($newArray)) {
             $searchQuery = $searchQuery2;
         }
-
-        // $table = "(SELECT r.id, r.centro, r.periodo, r.ano, r.date_insert, dr.descricao, dr.periodo as periodo_estatistico, s.sector, r.valido, r.filename as filename_padrao,
-        //   (SELECT fr.documento_reconhecido FROM filename_relatorio fr WHERE fr.relatorio = r.id ORDER BY fr.id DESC LIMIT 1) as documento_reconhecido, 
-        //   (SELECT fr.filename FROM filename_relatorio fr WHERE fr.relatorio = r.id ORDER BY fr.id DESC LIMIT 1) as filename, 
-        //     (SELECT fr.localizacao_relatorio FROM filename_relatorio fr WHERE fr.relatorio = r.id ORDER BY fr.id DESC LIMIT 1) as localizacao_relatorio
-        //     FROM relatorio r
-        //         LEFT OUTER JOIN descricao_relatorio dr ON ( r.descricao = dr.id  )
-        //             LEFT OUTER JOIN sector s ON ( r.sector = s.sector ) where {$condicao}) as T";
-
-                    // $table = "(SELECT a.id, a.codigo, a.armazem, a.descricao, a.localizacao, a.responsavel, f.nome 
-                    // FROM mutare_solucoes.armazem a 
-                    // Left outer join mutare_solucoes.funcionario f ON ( a.responsavel = f.id  ) where {$condicao}) as T";
-
-                    $table = "(SELECT a.id, a.armazem AS armazem, a.provincia_localizacao, a.responsavel, COUNT(p.id) AS total_produtos, SUM(ia.quantidade) AS stock_total, a.activo as activo,
-                    rua_localizacao, bairro_localizacao, avenida_localizacao, a.contacto
-                    FROM mutare_solucoes.armazem a 
-                    LEFT OUTER JOIN mutare_solucoes.funcionario f ON a.responsavel = f.id 
-                    LEFT OUTER JOIN mutare_solucoes.item_armazem ia ON a.id = ia.armazem_id 
-                    LEFT OUTER JOIN mutare_solucoes.produto p ON ia.produto_id = p.id where {$condicao}
-                    GROUP BY a.id) as T";
-        // $table = "(SELECT r.id, r.centro, r.periodo, r.ano, r.date_insert, dr.descricao, dr.periodo as periodo_estatistico, s.sector, r.valido, r.filename as filename_padrao,
-        //   (SELECT fr.documento_reconhecido FROM filename_relatorio fr WHERE fr.relatorio = r.id ORDER BY fr.id DESC LIMIT 1) as documento_reconhecido,
-        // echo $table;
-
+                    $table ="(SELECT 
+                        p.id AS produto_id,
+                        p.codigo AS produto_codigo,
+                        p.nome_produto,
+                        p.marca_produto,
+                        p.preco as preco_de_venda,
+                        p.codigo_stock,
+                        p.tipo_venda,
+                        p.tipo_produto,
+                        a.armazem AS nome_armazem,
+                        COALESCE(ip.quantidade, 0) AS quantidade_estoque,
+                        c.categoria AS nome_categoria,
+                        p.subcategoria AS nome_subcategoria,
+                        p.data_criacao AS produto_data_criacao
+                    FROM 
+                        mutare_solucoes.produto p
+                        LEFT JOIN mutare_solucoes.item_produto ip ON p.id = ip.produto_id
+                        LEFT JOIN mutare_solucoes.armazem a ON ip.armazem_id = a.id
+                        LEFT JOIN mutare_solucoes.subcategoria s ON p.subcategoria = s.subcategoria
+                        LEFT JOIN mutare_solucoes.categoria c ON s.categoria_id = c.id
+                    WHERE 
+                        p.activo = 1
+                    ORDER BY 
+                        p.nome_produto ASC,
+                        a.armazem ASC) as T";      
+        
         // Contagem total de registros sem filtros
         $totalRecords = $crud->count($table, true);
         //resultado sem filtros
@@ -190,22 +191,22 @@ class Armazem
             for ($i = 0; $i < $len; $i++) {
                 // Botão que permite visualizar os detalhe
                 $action = "<div class='edit-delete-action'>
-                       <a class='me-2 edit-icon p-2 visualizar-armazem' href='#' data-bs-toggle='modal' data-bs-target='#view-units' data-id={$response[$i]['id']}>
+                       <a class='me-2 edit-icon p-2 detalhe-produto' href='#' data-bs-toggle='modal' data-bs-target='#view-units' data-id={$response[$i]['produto_id']}>
 														<i class='fa fa-eye' data-bs-toggle='tooltip' title='fa fa-eye'></i>
                                                         </a>
-													<a class='me-2 p-2 alterar-armazem' href='#' data-bs-toggle='modal' data-bs-target='#edit-units' data-id={$response[$i]['id']}>
+													<a class='me-2 p-2 alterar-produto' href='#' data-bs-toggle='modal' data-bs-target='#edit-units' data-id={$response[$i]['produto_id']}>
                                                         <i class='fa fa-edit' data-bs-toggle='tooltip' title='fa fa-edit'></i>
 													</a>
                     </div>";
-                $cor = $response[$i]['activo'] == 1 ? 'badge-linesuccess' : 'badge-linedanger ';
-                $activo = $response[$i]['activo'] == 1 ? 'Activo' : 'Desactivado';
+                // $cor = $response[$i]['activo'] == 1 ? 'badge-linesuccess' : 'badge-linedanger ';
+                // $activo = $response[$i]['activo'] == 1 ? 'Activo' : 'Desactivado';
 
-                $estado = " <span class='badge {$cor}'>{$activo}</span>";
+                // $estado = " <span class='badge {$cor}'>{$activo}</span>";
 
                 // Verificar se as chaves existem e não são nulas
                 if (isset($response[$i]) && !empty($response[$i])) {
                     $response[$i]['action'] = $action;
-                    $response[$i]['activo'] = $estado;
+                    // $response[$i]['activo'] = $estado;
                     // $estado
                 }
             }
@@ -222,37 +223,88 @@ class Armazem
         // print_r($response);
         return $response;
     }
-
-    public function detalhe()
+        public function detalhe()
     {
         global $crud;
-        global $postData;
-        
-        $id = $postData["id_armazem"];
-        $response = "";
-        
+        $id = $_POST['id_produto'];
+    
         session_start();
-        
-        $collumns = 'armazem, responsavel, contacto, provincia_localizacao, bairro_localizacao, avenida_localizacao, rua_localizacao, activo';
-        $table = "armazem";
-        
-        $condition = "id LIKE '" . $id . "'";
-        
-        // echo($collumns. $table. $condition);
-        
-        try {
-            $response = $crud->read($collumns, $table, $condition);
-            // echo "<pre>";
-            // print_r($response);
-            if (count($response) > 0) {
-                $response = array("status" => true, "data" => $response);
-            } else {
-                $response = array("status" => false, "code" => 1);
-            }
-        } catch (Exception $erro) {
-            $response = array("status" => false, "code" => 2, "erro" => $erro->getMessage(), "msg" => $erro->getCode());
-        } finally {
-            return $response;
+        // $userId = $_SESSION['user_id'];
+        // $userFuncaoId = $_SESSION['funcao'];
+        $response = "";
+        // $file_response = '';
+    
+        // Colunas conforme seu SELECT principal de produto
+        $collumns = ' p.nome_produto,
+    c.categoria AS nome_categoria,
+    p.subcategoria AS nome_subcategoria,
+    p.marca_produto,
+    p.unidade_medida AS produto_unidade,
+    p.codigo_stock AS produto_codigo,
+    p.quantidade_alerta as quantidade_minima_alerta,
+    COALESCE(ip.quantidade, 0) AS quantidade_estoque,
+    p.preco AS produto_preco,
+    p.activo AS produto_activo,
+    p.descricao AS produto_descricao';
+    
+        $table = "mutare_solucoes.produto p
+            LEFT JOIN mutare_solucoes.item_produto ip ON p.id = ip.produto_id
+            LEFT JOIN mutare_solucoes.categoria c ON p.categoria_id = c.id";
+    
+        $condition = "p.id = '" . $id . "'";
+    
+        $produto_response = $crud->read($collumns, $table, $condition);
+    
+        // Se houver arquivos associados ao produto, adapte conforme sua estrutura
+        // Exemplo:
+        // $file_response = $crud->read('documento_reconhecido, filename', 'arquivo_produto', "produto_id = '" . $id . "' order by id desc limit 1");
+    
+        // $response = array_merge($produto_response, $file_response);
+    
+        $response = $produto_response; // Se não houver arquivos, apenas os dados do produto
+    
+        if (count($response) > 0) {
+            $response = array(
+                "status" => true,
+                "data" => $response
+            );
+        } else {
+            $response = array("status" => false, "data" => "Nenhum registro encontrado");
         }
+    
+        return($response);
     }
+
+    // public function detalhe()
+    // {
+    //     global $crud;
+    //     global $postData;
+        
+    //     $id = $postData["id_produto"];
+    //     $response = "";
+        
+    //     session_start();
+        
+    //     $collumns = 'produto, responsavel, contacto, provincia_localizacao, bairro_localizacao, avenida_localizacao, rua_localizacao, activo';
+    //     $table = "produto";
+        
+    //     $condition = "id LIKE '" . $id . "'";
+        
+    //     // echo($collumns. $table. $condition);
+        
+    //     try {
+    //         $response = $crud->read($collumns, $table, $condition);
+    //         // echo "<pre>";
+    //         // print_r($response);
+    //         if (count($response) > 0) {
+    //             $response = array("status" => true, "data" => $response);
+    //         } else {
+    //             $response = array("status" => false, "code" => 1);
+    //         }
+    //     } catch (Exception $erro) {
+    //         $response = array("status" => false, "code" => 2, "erro" => $erro->getMessage(), "msg" => $erro->getCode());
+    //     } finally {
+    //         return $response;
+    //     }
+    // }
 }

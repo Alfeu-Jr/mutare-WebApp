@@ -1,0 +1,89 @@
+{
+    "routes": [
+      {
+        "name": "Dashboard",
+        "path": "/dashboard"
+      },
+      {
+        "name": "Inventory",
+        "children": [
+          { "name": "All Products", "path": "/inventory/products" },
+          { "name": "Add New Product", "path": "/inventory/products/new" },
+          { "name": "Edit Product", "path": "/inventory/products/:productId/edit" },
+          { "name": "Categories", "path": "/inventory/categories" },
+          { "name": "Stock Adjustments", "path": "/inventory/adjustments" },
+          { "name": "Import Products", "path": "/inventory/import" },
+          { "name": "Export Products", "path": "/inventory/export" }
+        ]
+      },
+      {
+        "name": "Purchase Orders",
+        "children": [
+          { "name": "All Purchase Orders", "path": "/purchases/orders" },
+          { "name": "Create Purchase Order", "path": "/purchases/orders/new" },
+          { "name": "Vendors / Suppliers", "path": "/purchases/vendors" },
+          { "name": "Receipts", "path": "/purchases/receipts" }
+        ]
+      },
+      {
+        "name": "Sales",
+        "children": [
+          { "name": "All Sales Orders", "path": "/sales/orders" },
+          { "name": "Create Sales Order", "path": "/sales/orders/new" },
+          { "name": "Customers", "path": "/sales/customers" },
+          { "name": "Invoices", "path": "/sales/invoices" },
+          { "name": "Returns", "path": "/sales/returns" }
+        ]
+      },
+      {
+        "name": "Warehouses & Locations",
+        "children": [
+          { "name": "All Warehouses", "path": "/warehouses/list" },
+          { "name": "Stock Transfers", "path": "/warehouses/transfers" },
+          { "name": "Add Warehouse", "path": "/warehouses/new" }
+        ]
+      },
+      {
+        "name": "Reports",
+        "children": [
+          { "name": "Inventory Report", "path": "/reports/inventory" },
+          { "name": "Sales Report", "path": "/reports/sales" },
+          { "name": "Purchase Report", "path": "/reports/purchases" },
+          { "name": "Stock Movement Report", "path": "/reports/stock-movement" },
+          { "name": "Low Stock Report", "path": "/reports/low-stock" }
+        ]
+      },
+      {
+        "name": "Users & Permissions",
+        "children": [
+          { "name": "User List", "path": "/users/list" },
+          { "name": "Add User", "path": "/users/new" },
+          { "name": "Roles & Permissions", "path": "/users/roles" }
+        ]
+      },
+      {
+        "name": "Settings",
+        "children": [
+          { "name": "General Settings", "path": "/settings/general" },
+          { "name": "Inventory Rules", "path": "/settings/inventory" },
+          { "name": "Notification Settings", "path": "/settings/notifications" },
+          { "name": "Integration Settings", "path": "/settings/integrations" }
+        ]
+      },
+      {
+        "name": "Audit Logs & Activity",
+        "children": [
+          { "name": "Activity Logs", "path": "/logs/activity" },
+          { "name": "Login History", "path": "/logs/logins" }
+        ]
+      },
+      {
+        "name": "Help & Support",
+        "children": [
+          { "name": "Documentation", "path": "/help/docs" },
+          { "name": "Contact Support", "path": "/help/contact" }
+        ]
+      }
+    ]
+  }
+  

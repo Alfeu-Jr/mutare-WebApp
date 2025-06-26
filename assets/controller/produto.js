@@ -1,10 +1,13 @@
 import { selectFiller } from './master.js';
-class listaProduto{
+import { Lista } from './master.js';
+class listaProduto extends Lista {
     constructor(){
 		//   console.log('ano') 
+    super();
 		self = this;
 		this.init();
     }
+
     init(){ 
 		//   console.log('ano')
         	// Datatable
@@ -32,76 +35,97 @@ class listaProduto{
       // }
 
       self = this;
-    // var condicao = [];
-    // if(self.ano == ''){
-    //   condicao = [['valido', 1],['s.id', self.sector]]
-    // }
-    // else{
-    //   condicao = [['valido', 1],['s.id', self.sector],['ano', self.ano]]
-    // }
-    
-    this.nomeTabela = 'datatable-new';
-    // this.url = 'assets/model/relatorio.php';
-    this.colunas = ['centro',
-      // 'sector',
-      'descricao',
-      'periodo_estatistico',
-      'periodo',
-      'ano',
-      'documento_reconhecido',
-      'date_insert',
+   
+    this.nomeTabela = "tabela_produto";
+    this.url = "assets/model/produto.php";
+
+    this.colunas = ['nome_produto',
+      'codigo_stock',
+      'nome_categoria',
+      'marca_produto',
+      'preco_de_venda',
+      'tipo_venda',
+      'quantidade_estoque',
       'action'];
 
-    // this.sort = [6, 'desc'];
+    this.sort = [0, "desc"];
 
-    // this.dataRequest = {
-    //   request: "listar",
-    //   condicao: condicao
-    // };
-    this.notOrderable = [9];
-    // this.dateType = [4];
-    this.collumnFilter = [1, 3, 4, 6, 8];
+    this.dataRequest = {
+      request: "listar",
+    };
 
-    this.listalocal();
+    this.notOrderable = [7];
+    this.collumnFilter = [2, 3, 4];
 
+    this.lista();
 
-    // $('#datatable-new').on('click', '.detalhe-relatorio', function () {
-    //   var id = $(this).data('id');
-    //   window.open("relatorio/detalhe.php?id_relatorio=" + id, "_self");
+    
+    $('#tabela_produto').on('click', '.detalhe-produto', function () {
+      var id = $(this).data('id');
+      window.open("product-details.html?id_produto=" + id, "_self");
 
-    // });
+    });
     }
-
-	
 }
-
 
 class adicionarProduto extends selectFiller {
     constructor(){
         super();
         self = this;
-        // document.addEventListener("DOMContentLoaded", function() {
-
             this.init();
-        // });
 
     }
 
     async init(){
-      
-        await this.getSelect('armazem', 'slc_armazem', ['armazem', 'armazem', 'id']);
-        await this.getSelect('categoria', 'slc_categoria', ['categoria', 'categoria', 'id']);
+        await this.getSelect('categoria', 'slc_categoria', ['categoria', 'id', 'id']);
+        await this.getSelect('subcategoria', 'txt_subcategoria', ['subcategoria', 'id', 'id']);
 
-      $('#submeter-adicionar-categoria').on('click', function () {
-        $("#txt_nova_categoria").val().trim().length > 0 ? self.guardar_categoria() : true;
-      });
-          $('#form_adicionarproduto').on('submit', function (e) {
-        e.preventDefault();
-        validar_produto() ? guardar_categoria() : true;
-      })
-    }
+        $('#submeter-adicionar-categoria').on('click', function () {
+          $("#txt_nova_categoria").val().trim().length > 0 ? self.guardar_categoria() : true;
+        });
+
+        this.codigostock();
+
+        $('#btn_gerar_codigo').on('click', function(e) {
+          self.codigostock();
+        }); 
+        
+        this.formcheck();
+        $(".js-select2-tags").select2({
+          tags: true
+        });
+      }
+
+      codigostock() {
+        const now = new Date();
+        const microseconds = now.getTime() * 150 + Math.floor(now.getMilliseconds() * 110);
+        $('#txt_codigostock').val(String(microseconds).slice(-12).padStart(12, '1'));
+      }
     
-    getSelect(tabela, elementoId, keys) {
+      
+formcheck() {
+  self = this;
+  $("#form_adicionarproduto").on("submit", function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Bootstrap validation
+    if (this.checkValidity() === false) {
+      $(this).addClass("was-validated");
+      return;
+    }
+
+    // Captura dos dados
+
+    self.adicionar_produto();
+    // Exemplo: exibir no console
+    // console.log(dados);
+
+    // Aqui você pode enviar via AJAX ou outro processamento
+  });
+}
+
+    fselecgetSelect(tabela, elementoId, keys) {
         let self = this;
         return new Promise((resolve, reject) => {
             var element = document.getElementById(elementoId);
@@ -154,6 +178,7 @@ guardar_categoria() {
             //   }
             // });
             $('#modal-adicionar-categoria').modal('hide')
+            $('#slc_categoria').select2();
           }
 
           if (response.status == false) {
@@ -201,149 +226,226 @@ guardar_categoria() {
     request(dadosCategoria);
   }
 
-  guardar_produto() {
- let formData = new FormData();
 
-        // Captura dos valores dos campos
-        formData.append('armazem', $('#slc_armazem').val());
-        formData.append('nome_produto', $('#txt_nomeproduto').val().trim());
-        formData.append('marca_produto', $('#txt_marcaproduto').val().trim());
-        formData.append('categoria', $('#slc_categoria').val());
-        formData.append('tipo_venda', $('#slc_tipovenda').val());
-        formData.append('quantidade', $('#txt_quantidade').val());
-        formData.append('preco', $('#txt_preco').val().replace(',', '.'));
-        formData.append('peso', $('#txt_peso').val());
-        formData.append('quantidade_alerta', $('#txt_quantidaalerta').val());
-        formData.append('data_fabricacao', $('#txt_datafabricacao').val());
-        formData.append('validade', $('#txt_validade').val());
-        formData.append('descricao', $('#txt_descricao').val());
+adicionar_produto() {
+  self = this;
+  var dadosProduto = new FormData();
 
-        // Se houver campos de imagem:
-        let fileInput = $('#form_adicionarproduto input[type="file"]')[0];
-        if (fileInput && fileInput.files.length > 0) {
-            for (let i = 0; i < fileInput.files.length; i++) {
-                formData.append('imagens[]', fileInput.files[i]);
-            }
-        }
-
-        // Adicione outros campos conforme necessário
-
-        $.ajax({
-            url: 'assets/model/produto.php',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            dataType: 'json',
-            success: function (response) {
-                if (response.status === true) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Produto adicionado com sucesso!',
-                        confirmButtonText: 'OK'
-                    }).then(() => {
-                        // Redirecionar ou limpar formulário
-                        window.location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Erro ao adicionar produto',
-                        html: response.mensagem || 'Ocorreu um erro ao salvar o produto.'
-                    });
-                }
-            },
-            error: function (xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro de sistema',
-                    html: xhr.responseText || 'Ocorreu um erro inesperado.'
-                });
-            }
-        });
+  function pushData(key, value) {
+      const valor = value ?? "";
+      dadosProduto.append(key, valor);
   }
-  validar_produto() {
-    let valido = true;
-    let mensagens = [];
 
-    // Armazém
-    if (!$('#slc_armazem').val()) {
-        valido = false;
-        mensagens.push('Selecione o Armazém.');
-    }
+  function request(dados) {
+      $.ajax({
+          url: "assets/model/request.php",
+          type: "post",
+          data: dados,
+          dataType: "JSON",
+          processData: false,
+          contentType: false,
+          success: function (response) {
+              if (response.status == true) {
+                  Swal.fire({
+                      icon: "success",
+                      title: "Produto Registrado",
+                      html: "O produto foi guardado com sucesso!",
+                      allowEscapeKey: false,
+                      allowOutsideClick: false,
+                      confirmButtonText: "OK",
+                      preConfirm: () => {
+                                                location.reload();
+                          // $('#form_adicionarproduto')[0].reset();
+                          // $('#form_adicionarproduto').removeClass('was-validated');
+                          // Atualize sua tabela/lista de produtos se necessário
+                      }
+                  });
+              }
+              if (response.status == false) {
+                  console.error("Unknown error code:", response.code);
+                  switch (response.code) {
+                      case 2:
+                          Swal.fire({
+                              icon: "warning",
+                              title: "Erro ao Registrar o Produto",
+                              html: "Nome de ficheiro <b>inválido</b>. <br> Altere o <b>nome do ficheiro</b> e tente novamente.",
+                          });
+                          break;
+                      case 1:
+                          Swal.fire({
+                              icon: "error",
+                              title: "Nome já registrado",
+                              text: "Já existe um produto cadastrado com este nome. Por favor, escolha outro nome.",
+                          });
+                          break;
+                      case 3:
+                          Swal.fire({
+                              icon: "error",
+                              title: "Erro ao Registrar o Produto",
+                              html: errorMessage,
+                          });
+                          break;
+                      default:
+                          Swal.fire({
+                              icon: "error",
+                              title: "Erro ao Registrar o Produto",
+                              html: "Ação não reconhecida ou não implementada. Por favor, tente novamente ou contacte o administrador do sistema.",
+                          });
+                          console.error("Unknown error code:", response.mess);
+                  }
+              }
+          },
+          error: function (response) {
+              Swal.fire({
+                  icon: "error",
+                  title: "Erro ao Registrar o Produto",
+                  html:
+                      "Por favor <b><i>retorne</i></b> ao Menu Principal e tente novamente." +
+                      "<p></p> Se o erro persistir, contacte o Administrador do Sistema para resolver o problema.",
+              });
+              console.log("Erro no sistema, Erro - ", response.responseText);
+          },
+      });
+  }
 
-    // Nome do Produto
-    if (!$('#txt_nomeproduto').val() || !$('#txt_nomeproduto').val().trim()) {
-        valido = false;
-        mensagens.push('O nome do produto é obrigatório.');
-    }
+  pushData("request_geral", "adicionar");
 
-    // Marca do Produto
-    if (!$('#txt_marcaproduto').val() || !$('#txt_marcaproduto').val().trim()) {
-        valido = false;
-        mensagens.push('A marca do produto é obrigatória.');
-    }
+  const campos = [
+      // "armazem",
+      "nome_produto",
+      "marca_produto",
+      "categoria_id",
+      "subcategoria",
+      "tipo_venda",
+      "codigo_stock",
+      "descricao",
+      "quantidade",
+      "preco",
+      "peso",
+      "quantidade_alerta"
+      // "data_fabricacao",
+      // "validade"
+  ];
+  const valores = [
+      // $("#slc_armazem").val(),
+      $("#txt_nomeproduto").val(),
+      $("#txt_marcaproduto").val(),
+      $("#slc_categoria").val(),
+      $("#txt_subcategoria").val(),
+      $("#slc_tipovenda").val(),
+      $("#txt_codigostock").val(),
+      $("#txt_descricao").val(),
+      $("#txt_quantidade").val(),
+      $("#txt_preco").val().replace(',', '.'),
+      $("#txt_peso").val(),
+      $("#txt_quantidaalerta").val()
+      // $("#txt_datafabricacao").val(),
+      // $("#txt_validade").val()
+  ];
 
-    // Categoria
-    if (!$('#slc_categoria').val()) {
-        valido = false;
-        mensagens.push('Selecione a categoria.');
-    }
+  campos.forEach(function (file) {
+      pushData("coluna[]", file);
+  });
 
-    // Tipo de Venda
-    if (!$('#slc_tipovenda').val()) {
-        valido = false;
-        mensagens.push('Selecione o tipo de venda.');
-    }
+  valores.forEach(function (file) {
+      pushData("valores[]", file);
+  });
 
-    // Quantidade
-    let quantidade = $('#txt_quantidade').val();
-    if (!quantidade || isNaN(quantidade) || Number(quantidade) <= 0) {
-        valido = false;
-        mensagens.push('A quantidade deve ser maior que zero.');
-    }
+  // Exemplo de condicao: ["nome_produto", $("#txt_nomeproduto").val()]
+  const condicao = [
+      ["nome_produto", $("#txt_nomeproduto").val()]
+  ];
 
-    // Preço
-    let preco = $('#txt_preco').val();
-    if (!preco || isNaN(preco.replace(',', '.')) || Number(preco.replace(',', '.')) <= 0) {
-        valido = false;
-        mensagens.push('Introduza um preço válido.');
-    }
+  condicao.forEach(function (condition, index) {
+      dadosProduto.append(`condicao[${index}][]`, condition[0]);
+      dadosProduto.append(`condicao[${index}][]`, condition[1]);
+  });
 
-    // Peso Total
-    let peso = $('#txt_peso').val();
-    if (peso && (isNaN(peso) || Number(peso) < 0)) {
-        valido = false;
-        mensagens.push('O peso total não pode ser negativo.');
-    }
+  pushData("tabela", "produto");
 
-    // Quantidade Mínima para Alerta
-    let alerta = $('#txt_quantidaalerta').val();
-    if (alerta && (isNaN(alerta) || Number(alerta) < 0)) {
-        valido = false;
-        mensagens.push('A quantidade mínima para alerta não pode ser negativa.');
-    }
-
-    // Descrição
-    let descricao = $('#txt_descricao').val();
-    if (descricao && descricao.length > 60) {
-        valido = false;
-        mensagens.push('A descrição deve ter no máximo 60 caracteres.');
-    }
-
-    if (!valido) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Erro de Validação',
-            html: mensagens.join('<br>'),
-            confirmButtonText: 'OK'
-        });
-    }
-
-    return valido;
+  request(dadosProduto);
 }
 
 
+
+}
+
+class detalheProduto{
+  constructor(idProduto) {
+    // super();
+    this.id_produto = idProduto;
+    this.dados_produto;
+
+    // this.preencherselect();
+
+    self = this;
+
+    // this.init();
+    // this.formvalidation();
+    this.carregarProduto(idProduto);
+  }
+
+  async carregarProduto(id_produto) {
+    self = this;
+
+    try {
+      await $.ajax({
+        url: "assets/model/produto.php",
+        method: "POST",
+        data: { request: 'detalhe', id_produto: id_produto },
+        dataType: "json",
+
+        success: function (response) {
+          if (response.status == true) {
+            self.dados_produto = response.data;
+
+            $('#txt_nome_produto').text(response.data.nome_produto);
+            $('#txt_categoria').text(response.data.nome_categoria);
+            $('#txt_subcatgoria').text(response.data.nome_subcategoria);
+            $('#txt_marca').text(response.data.marca_produto);
+            $('#txt_unidade').text(response.data.produto_unidade);
+            $('#txt_codigo_stock').text(response.data.produto_codigo);
+            $('#txt_quantidade_minima').text(response.data.quantidade_minima_alerta);
+            $('#txt_quantidade').text(response.data.quantidade_estoque);
+            // $('#txt_imposto').text(response.data.filename);
+            // $('#txt_desconto').text(response.data.id);
+            $('#txt_preco').text(response.data.produto_preco);
+
+            $('#txt_estado').text(response.data.produto_estado);
+            $('#txt_descricao').text(response.data.produto_descricao);
+            
+            //Secção dos fotos 
+
+            // ficheiro = "arquivos/produto/" + response.data.localizacao_produto + "/" + response.data.filename;
+
+            // //verifica se o formato do ficheiro é compatível
+            // if((response.data.filename.toLowerCase()).includes('.pdf')){
+            //   $('#ficheiro_produto').attr('src', ficheiro);
+            //   $('#ver_ficheiro').attr('href', ficheiro);
+            // }else{
+            //   $('.ficheiro-compativel').each(function () {
+            //     $(this).addClass("d-none");
+            //   });
+            //   $('.ficheiro-incompativel').removeClass("d-none");
+            // }
+
+          }
+
+        },
+        erro: function (response) {
+          Swal.fire({
+            icon: "error",
+            title: "Detalhes do Produto",
+            html: "Ocorreu um erro ao carregar os dados do produto, por favor <b><i>retorne</i></b> ao Menu Principal e tente novamente."
+        });
+        console.log("Erro no sistema, Erro - ", response.responseText);
+        }
+      });
+    } catch (error) {
+      console.error(error.responseText);
+      // console.log("Erro no sistema, Erro - ", response.responseText);
+    }
+  }
 
 }
 
@@ -356,7 +458,11 @@ guardar_categoria() {
     const listaP = new listaProduto();
  } else if(dataMdulo == 'produto-adicionar'){
      const listaP = new adicionarProduto();
+    } else if(dataMdulo == 'produto-detalhe'){
+      var url = new URLSearchParams(window.location.search);
+      const idProduto = (url.get('id_produto')).replace(/'/g, '');
+      // console.log(idProduto)
+        const detalheP = new detalheProduto(idProduto);
     }
     
-    // console.log(document.getElementById('slc_armazem'));
 });

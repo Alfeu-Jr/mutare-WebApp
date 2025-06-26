@@ -517,6 +517,226 @@ export class toasterAlerta {
     toast.show()
 
   }
-
-
 }
+
+export class selectFillerr {
+  constructor() {
+    self = this;
+    this.response = '';
+    this.nomeTabela = '';
+    this.tabela = '';
+    this.url = '';
+    // this.colunas = [];
+    // this.addcolunas = [];
+
+    // this.tabelax = true;
+    // this.tabelasave = true;
+    // this.lengthMenu = [10, 25, 50, 75, 100];
+    // this.pageLength = [50]; //quantidade de registros padrão
+    // this.dom = 'Bflrtip'; //tipo de botoes
+    // this.search = true;
+    // this.serverSide = true;
+    // this.searchDelay = 500;
+
+    // this.dataRequest = {};
+    // this.notOrderable = [];
+    // this.dateType = [];
+    // this.collumnFilter = [];
+    // this.filtroColuna = [];
+    // this.keysToRetrieve = [];
+    // this.filtroArray = [];
+  }
+  // Original method - works with flat data
+  fillSelect(elemento, conteudo, variaveis, attributos) {
+    const select_conteudo = variaveis[0];
+    const select_value = variaveis[1];
+    const atributos = variaveis.slice(2);
+    
+    while (elemento.options.length > 0) {
+      elemento.remove(0);
+    }
+    
+    // Add default option
+    const defaultOption = document.createElement('option');
+    defaultOption.selected = true;
+    defaultOption.disabled = true;
+    defaultOption.value = "";
+    defaultOption.textContent = "Selecione";
+    elemento.appendChild(defaultOption);
+    
+    // Add options
+    conteudo.forEach(conteudo => {
+      const optionElement = document.createElement('option');
+      optionElement.textContent = conteudo[select_conteudo];
+      optionElement.value = conteudo[select_value];
+      
+      atributos.forEach(atributo => {
+        optionElement.setAttribute("data-" + atributo, conteudo[atributo]);
+      });
+      
+      elemento.appendChild(optionElement);
+    });
+  }
+
+  // New method - handles grouped data with categories
+  fillSelectGrouped(elemento, conteudo, variaveis, attributos, groupByKey = 'category') {
+    const select_conteudo = variaveis[0];
+    const select_value = variaveis[1];
+    const atributos = variaveis.slice(2);
+    
+    while (elemento.options.length > 0) {
+      elemento.remove(0);
+    }
+    
+    // Add default option
+    const defaultOption = document.createElement('option');
+    defaultOption.selected = true;
+    defaultOption.disabled = true;
+    defaultOption.value = "";
+    defaultOption.textContent = "Selecione";
+    elemento.appendChild(defaultOption);
+    
+    // Group data by category
+    const groupedData = this.groupByCategory(conteudo, groupByKey);
+    
+    // Create optgroups for each category
+    Object.keys(groupedData).forEach(categoryName => {
+      const optgroup = document.createElement('optgroup');
+      optgroup.label = categoryName;
+      
+      groupedData[categoryName].forEach(item => {
+        const optionElement = document.createElement('option');
+        optionElement.textContent = item[select_conteudo];
+        optionElement.value = item[select_value];
+        
+        atributos.forEach(atributo => {
+          optionElement.setAttribute("data-" + atributo, item[atributo]);
+        });
+        
+        optgroup.appendChild(optionElement);
+      });
+      
+      elemento.appendChild(optgroup);
+    });
+  }
+
+  // Helper method to group data by category
+  groupByCategory(data, groupByKey) {
+    return data.reduce((groups, item) => {
+      const category = item[groupByKey] || 'Outros';
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(item);
+      return groups;
+    }, {});
+  }
+
+  // Enhanced method - automatically detects if data should be grouped
+  fillSelectSmart(elemento, conteudo, variaveis, attributos, options = {}) {
+    const {
+      groupByKey = 'category',
+      enableGrouping = true,
+      sortCategories = true,
+      sortItems = true
+    } = options;
+
+    // Check if grouping should be applied
+    const shouldGroup = enableGrouping && conteudo.some(item => item[groupByKey]);
+    
+    if (shouldGroup) {
+      // Sort data if requested
+      if (sortItems) {
+        conteudo.sort((a, b) => {
+          const categoryCompare = (a[groupByKey] || '').localeCompare(b[groupByKey] || '');
+          if (categoryCompare !== 0) return categoryCompare;
+          return (a[variaveis[0]] || '').localeCompare(b[variaveis[0]] || '');
+        });
+      }
+      
+      this.fillSelectGrouped(elemento, conteudo, variaveis, attributos, groupByKey);
+    } else {
+      this.fillSelect(elemento, conteudo, variaveis, attributos);
+    }
+  }
+
+  // Original method with enhanced error handling
+  getSelect(table, elementId, keys, options = {}) {
+    let self = this;
+    return new Promise((resolve, reject) => {
+      var element = document.getElementById(elementId);
+      
+      if (!element) {
+        reject(new Error(`Element with ID '${elementId}' not found`));
+        return;
+      }
+
+      $.ajax({
+        url: `assets/model/${self.url}.php`,
+        type: 'post',
+        data: { request: self.request, tabela: table },
+        dataType: 'json',
+        success: function (response) {
+          try {
+            if (options.useSmartFill) {
+              self.fillSelectSmart(element, response, keys, [], options);
+            } else if (options.groupByKey) {
+              self.fillSelectGrouped(element, response, keys, [], options.groupByKey);
+            } else {
+              self.fillSelect(element, response, keys, []);
+            }
+            resolve(response);
+          } catch (error) {
+            reject(error);
+          }
+        },
+        error: function (error) {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  // New method specifically for products grouped by categories
+  getProductsByCategory(elementId, keys, options = {}) {
+    const defaultOptions = {
+      groupByKey: 'category_name',
+      useSmartFill: true,
+      sortCategories: true,
+      sortItems: true,
+      // ...options
+    };
+
+    return this.getSelect('products', elementId, keys, defaultOptions);
+  }
+}
+
+// Usage examples:
+
+/*
+// Basic usage (original functionality)
+const filler = new selectFiller();
+filler.getSelect('products', 'product-select', ['name', 'id']);
+
+// Grouped usage - products by category
+filler.getProductsByCategory('product-select', ['name', 'id']);
+
+// Custom grouped usage
+filler.getSelect('products', 'product-select', ['name', 'id'], {
+  groupByKey: 'category_name',
+  useSmartFill: true,
+  sortCategories: true,
+  sortItems: true
+});
+
+// Manual grouped fill (if you already have the data)
+const productData = [
+  { id: 1, name: 'Laptop Dell', category_name: 'Eletrônicos', price: 2500 },
+  { id: 2, name: 'Mouse Logitech', category_name: 'Eletrônicos', price: 50 },
+  { id: 3, name: 'Cadeira Gamer', category_name: 'Móveis', price: 800 },
+  { id: 4, name: 'Mesa de Escritório', category_name: 'Móveis', price: 400 }
+];
+
+const element = document.getElementById('product-select');
+filler.fillSelectGrouped(element, productData, ['name', 'id'], ['price'], 'category_name');
+*/

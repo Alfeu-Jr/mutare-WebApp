@@ -15,6 +15,7 @@ class crud
             $condition = true;
         }
         $query = "SELECT " . $collumns . " FROM " . $table . " WHERE 1 and " . $condition;
+        // echo($query);
         $record = mysqli_query($GLOBALS['con'], "SELECT " . $collumns . " FROM " . $table . " WHERE 1 and " . $condition);
 
         $response = array();

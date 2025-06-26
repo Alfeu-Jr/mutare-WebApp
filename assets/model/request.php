@@ -49,6 +49,7 @@ class Request
         }
 
         unset($escaped_data['request']);
+        unset($escaped_data['request_geral']);
         // print_r
         return $escaped_data;
     }
@@ -271,6 +272,7 @@ class Request
         global $postData;
         $tabela = $postData["tabela"];
         $id = $postData["id"];
+        
         $coluna = array();
         $valor = array();
 
@@ -284,18 +286,42 @@ class Request
             unset($postData['tabela'], $postData['id']);
 
             $response = "";
+            $campos = $postData['coluna'];
+            $valores = $postData['valores'];
+    
+            $coluna = array();
+            $valor = array();
+    
+            // try {
+                // array_shift($postData);
+                foreach ($campos as $i => $campo) {
+                    $coluna[] = $campo;
+                    $valor[] = $valores[$i];
+                }
 
-            foreach ($postData as $key => $value) {
-                $coluna[] =  $key;
-                $valor[] =  $value;
-            }
+                isset($postData['condicao']) ? $verificacao = $postData['condicao'] : true;
+
+                if(isset($verificacao)){
+                   foreach ($verificacao as $teste) {
+                       // $cond = "".$valor[0] . " = '" . $valor[1]."'";
+                       // foreach ($data['condicao'] as $valor) {
+                           $cond[] = "{$teste[0]} = '{$teste[1]}'";
+                       }
+                       $condicaofinal = implode(' and ', $cond);
+
+                        //   echo($condicaofinal);
+                       // echo $cond;
+                       if ($crud->count($tabela, $condicaofinal) > 0) {
+                           throw new Exception(code: 2);
+                       }
+                       // echo $cond;
+                   }
+                
+
 
             $condicao = "id = '{$id}'";
-
             // print_r($coluna);
             // print_r($valor);
-            // print_r($coluna);
-
             if ($crud->update($tabela, $coluna, $valor, $condicao) != true) {
                 throw new Exception(code: 1);
             }
@@ -317,41 +343,70 @@ class Request
 
         $tabela = $postData['tabela'];
 
-        $condicao = $postData['condicao'];
+        // Method 1 - You'll receive:
+        // $condicao = $postData['condicao']; 
 
-        $conteudo = $postData['conteudo'];
+
+        // $condicao = $postData['condicao'];
+        isset($postData['condicao']) ? $condicao = $postData['condicao'] : $condicao = [];
+        
+        // print_r($condicao);
+        // $conteudo = json_decode($postData['coluna'], true);
+        $campos = $postData['coluna'];
+        $valores = $postData['valores'];
+
+        // print_r($postData);
+        // print_r($postData['valores']);
         // unset($postData['condicao']);
+        // unset($postData['conteudo']);
+        // $condicao = json_decode($postData['condicao'], true);
 
         $coluna = array();
         $valor = array();
 
         try {
             // array_shift($postData);
-            foreach ($conteudo as $valores) {
-                $coluna[] = $valores[0];
-                $valor[] = $valores[1];
+            foreach ($campos as $i => $campo) {
+                $coluna[] = $campo;
+                $valor[] = $valores[$i] ?? '';
             }
+
+            // print_r($valor);
+            // print_r($coluna);
+            // print_r($valor);
             
-            print_r($coluna);
-            session_start();
+            // print_r($coluna);
+            // session_start();
 
 
             // a condicao deve obeder a seguinte estrutura : ['col', val], [] x n .....]
-            foreach ($condicao as $valor) {
-                $cond = $valor[0] . ' = ' . $valor[1];
-
-                if ($crud->count($tabela, $cond) > 0) {
-                    throw new Exception(code: 1);
+            if(isset($condicao)){
+                foreach ($condicao as $test) {
+                    // $cond = "".$valor[0] . " = '" . $valor[1]."'";
+                    // foreach ($data['condicao'] as $valor) {
+                        $cond[] = "{$test[0]} = '{$test[1]}'";
+                    }
+                    $condicaofinal = implode(' and ', $cond);
+                    
+                    //    echo($condicaofinal);
+                    // echo $cond;
+                    
+                    if ($crud->count($tabela, $condicaofinal) > 0) {
+                        throw new Exception(code: 1);
+                    }
+                    // echo $cond;
                 }
-                // echo $cond;
-            }
+            // } 
             
-            // if ($crud->count($tabela, $condiction) == 0) { // verifica se nao existe um ficheiro com o mesmo nome
-                if ($crud->insert($tabela, $coluna, $valor) == false) { //verifica se a inserção foi bem sucedida
+            // throw new Exception(code: 40); // if ($crud->count($tabela, $condiction) == 0) { // verifica se nao existe um ficheiro com o mesmo nome
+            // print_r($coluna);
+            // print_r($valor);
+            // throw new Exception(code: 0);
+            if ($crud->insert($tabela, $coluna, $valor) == false) { //verifica se a inserção foi bem sucedida
                     throw new Exception(code: 2);
                 }
                     //         
-
+                    // throw new Exception(code: 0);
 
             $response = array("status" => true);
         } catch (Exception $e) {
