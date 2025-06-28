@@ -509,13 +509,13 @@ export class selectFiller {
 }
 
 export class toasterAlerta {
-  constructor(toastID, message, type) {
 
-    const toast = new bootstrap.Toast(document.getElementById(`#${this.toastID}`))
-    
-    // `#${this.nomeTabela}`
-    toast.show()
-
+  showToastWarning(title, message) {
+    $('#toast-warning-title').text(title);
+    $('#toast-warning-body').text(message);
+    var toastEl = document.getElementById('jsToastWarning');
+    var toast = new bootstrap.Toast(toastEl);
+    toast.show();
   }
 }
 
@@ -709,6 +709,12 @@ export class selectFillerr {
 
     return this.getSelect('products', elementId, keys, defaultOptions);
   }
+}
+
+export class geral{
+  constructor() {
+  this.selectFiller = new selectFiller();
+}
 }
 
 // Usage examples:

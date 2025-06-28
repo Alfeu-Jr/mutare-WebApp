@@ -250,13 +250,17 @@ class Request
         }
 
         if (isset($postData['coluna'])) {
-            $coluna = $postData['coluna'];
+            foreach ($postData['coluna'] as $valor) {
+                $cols[] = $valor;
+            }
+            $coluna = implode(', ', $cols);
+            // $coluna = $postData['coluna'];
         } else {
             $coluna = '';
         }
 
         $response = $crud->read($coluna, $tabela, $condicao);
-
+        
         if (count($response) > 0) {
             $response = array("status" => true, "data" => $response);
         } else {

@@ -18,9 +18,9 @@ if (isset($_POST['request'])) {
             $response = $stock->stock_lista();
             break;
             
-        // case 'adicionarr':
-        //     $response = $request->adicaoRapida();
-        //     break;
+        case 'dados_produto':
+            $response = $stock->retornar_produto();
+            break;
 
         // case 'detalhe':
         //     $response = $stock->detalhe();
@@ -213,7 +213,7 @@ class Stock
         // $file_response = '';
     
         // Colunas conforme seu SELECT principal de produto
-        $collumns = 'p.nome_produto as produto, c.categoria';
+        $collumns = 'p.nome_produto as produto, c.categoria, p.id as produto_id';
     
         $table = "produto p 
                 left join categoria c on p.categoria_id = c.id";
@@ -224,6 +224,7 @@ class Stock
         foreach ($produto_response as $item) {
             $caso = $item['categoria'];
             $response[$caso][] = $item['produto'];
+            $response[$caso][] = $item['produto_id'];
         }
 
         // print_r($response);
@@ -243,4 +244,35 @@ class Stock
         return($response);
     }
 
+    public function retornar_produto(){
+        global $crud;
+        global $postData;
+        $tabela = 'produto p
+                    left join categoria c on p.categoria_id = c.id';
+        $condicao = '';
+
+        $cond = [];
+        
+        $condicao = 'P.id = ' . $postData['id_produto'];
+
+            $coluna = ' p.id AS produto_id,
+                        p.codigo AS produto_codigo,
+                        p.nome_produto,
+                        p.marca_produto,
+                        p.preco as preco_de_venda,
+                        p.codigo_stock,
+                        p.tipo_venda,
+                        p.tipo_produto,
+                        c.categoria';
+
+        $response = $crud->read($coluna, $tabela, $condicao);
+        
+        if (count($response) > 0) {
+            $response = array("status" => true, "data" => $response);
+        } else {
+            $response = array("status" => false, "data" => "Nenhum registro encontrado");
+        }
+
+        return $response;
+    }
 }

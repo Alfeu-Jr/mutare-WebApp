@@ -13,7 +13,7 @@
 	"sSearch":       "Procurar:",
 	"sUrl":          "",
 	"oPaginate": {
-	    "sFirst":    "Primeiro",
+	    "sFirst":    "<i class='fa fa-angle-left'></i><i class='fa fa-angle-left'></i>",
 	    "sPrevious": "<i class='fa fa-angle-left'></i> ",
 	    "sNext":     " <i class='fa fa-angle-right'></i> ",
 	    "sLast":     "Último"

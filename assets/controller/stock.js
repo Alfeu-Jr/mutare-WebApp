@@ -74,21 +74,221 @@ class adicionarStock extends selectFiller {
         self = this;
             this.init();
             this.carregarStock();
-
+            // this.tabela = null;
     }
 
     async init(){
+      self = this;
+      
         await this.getSelect('armazem', 'slc_armazem', ['armazem', 'id', 'id']);
 
-        
+        // $("#modal-categoria-erro").modal("show");
         $('#slc_produtos').on('change', function() {
           const selectedValue = $(this).val();
+          self.esccolhaProduto(selectedValue);
           // Faça o que desejar com o valor selecionado
-          console.log('Produto selecionado:', selectedValue);
+          // console.log('Produto selecionado:', selectedValue);
+
       });
+      $('#slc_armazem').on('change', function() {
+        const id_armazem = $(this).val();
+        self.escolhaArmazem(id_armazem);
+        // Faça o que desejar com o valor selecionado
+        // console.log('Produto selecionado:', selectedValue);
+        
+      });
+      
+
+        // this.nomeTabela = "tabela_produto";
+        // this.listalocal();
+        // this.tabela = $('#tabela_produtos').DataTable({
+        //   // lengthMenu: this.lengthMenu,
+        //   orderCellsTop: true, // permitir somente o header de fazer o sorting
+        //   // fixedHeader: true,
+        //   pagingType: 'first_last_numbers',
+        //   // searchDelay: this.searchDelay,
+        //   // serverSide: true,
+        //   // serverMethod: 'post',
+        
+        //   language: {
+        //     url: 'assets/plugins/datatable/pt.json',
+        //     paginate: {
+        //       next: ' <i class=" fa fa-angle-right"></i>',
+        //       previous: '<i class="fa fa-angle-left"></i> '
+        //     },
+        //   },
+        // });
+
+        this.table = $('#tabela_produtos').DataTable({
+          "bFilter": true,
+          "sDom": 'fBtlpi',  
+          "ordering": true,
+          "language": {
+            search: ' ',
+            sLengthMenu: '_MENU_',
+            searchPlaceholder: "Search",
+            info: "_START_ - _END_ of _TOTAL_ items",
+            paginate: {
+              next: ' <i class=" fa fa-angle-right"></i>',
+              previous: '<i class="fa fa-angle-left"></i> '
+            },
+           },
+          initComplete: (settings, json)=>{
+            $('.dataTables_filter').appendTo('#tableSearch');
+            $('.dataTables_filter').appendTo('.search-input');
+          },	
+        });
+
       }
 
 
+      async escolhaArmazem(id_armazem){
+        self = this;
+        try {
+          await $.ajax({
+            url: "assets/model/request.php",
+            method: "POST",
+            data: { request_geral: 'carregar', tabela: 'armazem', condicao: [['id',id_armazem]], coluna: ['responsavel'] },
+            dataType: "json",
+
+            success: function (response) {
+              if (response.status == true) {
+                $('#nome_responsavel_armazem').val(response.data.responsavel);
+              }
+            },
+            erro: function (response) {
+              Swal.fire({
+                icon: "error",
+                title: "Armazém",
+                html: "Ocorreu um erro ao carregar os dados do armazém, por favor <b><i>retorne</i></b> ao Menu Principal e tente novamente."
+            });
+            console.log("Erro no sistema, Erro - ", response.responseText);
+            }
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      
+    }
+
+    async esccolhaProduto(id_produto) {
+        self = this;
+        try {
+          await $.ajax({
+            url: "assets/model/stock.php",
+            method: "POST",
+            data: { request: 'dados_produto', id_produto: id_produto},
+            dataType: "json",
+
+            success: function (response) {
+              if (response.status == true) {
+                 
+                // const ids = [1, 2, 3, 4, 5];
+              // const valor = 3;
+                // Recupera todos os atributos 'data-id' dos produtos na tabela
+               
+              const ids = [];
+              
+              $('#tabela_produtos tbody a[data-id]').each(function() {
+                ids.push($(this).attr('data-id'));
+                });
+
+                console.log(ids); // Array com todos os IDs dos produtos na tabela
+
+                if ($.inArray(response.data.produto_id, ids) !== -1) {
+                  console.log('Valor encontrado!');
+                } else {
+                    console.log('Valor não encontrado!');
+                    self.addRecordFromObject(response.data);
+                }
+
+
+                // self.tabela.ajax.reload();
+                // self.dados_produto = response.data;
+
+                // $('#txt_nome_produto').text(response.data.nome_produto);
+                // $('#txt_categoria').text(response.data.nome_categoria);
+                // $('#txt_subcatgoria').text(response.data.nome_subcategoria);
+                // $('#txt_marca').text(response.data.marca_produto);
+                // $('#txt_unidade').text(response.data.produto_unidade);
+                // $('#txt_codigo_stock').text(response.data.produto_codigo);
+                // $('#txt_quantidade_minima').text(response.data.quantidade_minima_alerta);
+                // $('#txt_quantidade').text(response.data.quantidade_estoque);
+                // // $('#txt_imposto').text(response.data.filename);
+                // // $('#txt_desconto').text(response.data.id);
+                // $('#txt_preco').val(response.data.produto_preco);
+
+                // $('#txt_estado').val(response.data.produto_estado);
+                // $('#txt_descricao').val(response.data.produto_descricao);
+
+              }
+
+            },
+            erro: function (response) {
+              Swal.fire({
+                icon: "error",
+                title: "Detalhes do Produto",
+                html: "Ocorreu um erro ao carregar os dados do produto, por favor <b><i>retorne</i></b> ao Menu Principal e tente novamente."
+            });
+            console.log("Erro no sistema, Erro - ", response.responseText);
+            }
+          });
+        } catch (error) {
+          console.error(error.responseText);
+          // console.log("Erro no sistema, Erro - ", response.responseText);
+        }
+      
+    }
+     addRecordFromObject(obj) {
+      self.addNewRecord({
+          name: obj.nome_produto,
+          sku: obj.codigo_stock,
+          category: obj.categoria,
+          produto_id: obj.produto_id,
+          quantity: 1,
+          image:  ''
+      });
+  }
+  addNewRecord(productData) {
+    // Cria a nova linha como um array para DataTables
+    const rowData = [
+        `<div class="productimgname">
+            <a href="javascript:void(0);" class="product-img stock-img">
+                <img src="assets/img/icons8_product_96px.png" alt="produto">
+            </a>
+            <a class="produto_id" href="javascript:void(0);" data-id="${productData.produto_id}">${productData.name}</a>
+        </div>`,
+        `${productData.sku}`,
+        `${productData.category}`,
+        `<div class="product-quantity">
+            <span class="quantity-btn"><i data-feather="minus-circle" class="feather-search"></i></span>
+            <input type="text" class="quantity-input" value="${productData.quantity}">
+            <span class="quantity-btn">+<i data-feather="plus-circle" class="plus-circle"></i></span>
+        </div>`,
+        // O último TD recebe a classe dinamicamente
+        `<td class="action-table-data">
+            <div class="edit-delete-action">
+                <a class="me-2 p-2" href="#" data-bs-toggle="modal" data-bs-target="#edit-units">
+                    <i data-feather="edit" class="feather-edit"></i>
+                </a>
+                <a class="confirm-text p-2" href="javascript:void(0);">
+                    <i data-feather="trash-2" class="feather-trash-2"></i>
+                </a>
+            </div>
+        </td>`
+    ];
+
+    // Adiciona a linha à tabela DataTables
+    const table = $('#tabela_produtos').DataTable();
+    const rowNode = table.row.add(rowData).draw(false).node();
+
+    // Garante que o último td tenha a classe (caso DataTables remova)
+    $(rowNode).find('td:last').addClass('action-table-data');
+
+    if (window.feather) {
+        feather.replace();
+    }
+  }
       async carregarStock() {
         self = this;
         var categorias = [];
@@ -121,55 +321,28 @@ class adicionarStock extends selectFiller {
 
                 // Para o select de categorias
                 // function preencherSelectComOptgroups() {
-                                   const $select = $('#slc_produtos');
+                    const $select = $('#slc_produtos');
                   $select.empty().append('<option value="" selected disabled>Selecione um produto</option>');
                   
                   $.each(response.data, function(categoria, produtos) {
-                      const $optgroup = $(`<optgroup label="${categoria}"></optgroup>`);
-                      $.each(produtos, function(index, produto) {
-                          $optgroup.append(`<option value="${produto}">${produto}</option>`);
-                      });
-                      $select.append($optgroup);
+                    const $optgroup = $(`<optgroup label="${categoria}"></optgroup>`);
+                    // produtos[0] = nome, produtos[1] = id
+                    if (produtos.length === 2) {
+                      $optgroup.append(`<option value="${produtos[1]}">${produtos[0]}</option>`);
+                    }
+                    $select.append($optgroup);
                   });
               // }
 
-              //   $('#nested-select').select2({
-              //     placeholder: "Choose an option...",
-              //     allowClear: true,
-              //     width: '100%'
-              //     // data: yourOptgroupData // for dynamic data
-              // });
+                // const $selectt = $('#nested-select');
 
-            //   $('#ajax-select').select2({
-            //     ajax: {
-            //         url: '/api/search', // Your API endpoint
-            //         dataType: 'json',
-            //         delay: 250,
-            //         data: function (params) {
-            //             return {
-            //                 q: params.term,
-            //                 page: params.page
-            //             };
-            //         },
-            //         processResults: function (data, params) {
-            //             return {
-            //                 results: data.items // Expected format with optgroups
-            //             };
-            //         }
-            //     },
-            //     placeholder: "Type to search...",
-            //     minimumInputLength: 2
-            // });
-
-                const $selectt = $('#nested-select');
-
-                $.each(response.data, function(group, items) {
-                  const $optgroup = $('<optgroup></optgroup>').attr('label', group);
-                  $.each(items, function(index, item) {
-                    $optgroup.append($('<option></option>').text(item));
-                  });
-                  $selectt.append($optgroup);
-                });
+                // $.each(response.data, function(group, items) {
+                //   const $optgroup = $('<optgroup></optgroup>').attr('label', group);
+                //   $.each(items, function(index, item) {
+                //     $optgroup.append($('<option></option>').text(item));
+                //   });
+                //   $selectt.append($optgroup);
+                // });
                     //                 const array2d = Object.values(response.data);
 
                     // console.log(array2d);
@@ -269,6 +442,15 @@ class adicionarStock extends selectFiller {
         // Aqui você pode enviar via AJAX ou outro processamento
       });
     }
+
+    showToastWarning(title, message) {[]
+      $('.tipo-alerta').addClass('tipo-alerta');
+      $('#toast-title').text(title);
+      $('#toast-body').text(message);
+      var toastEl = document.getElementById('jsToastWarning');
+      var toast = new bootstrap.Toast(toastEl);
+      toast.show();
+  }
 
 }
 

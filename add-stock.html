@@ -1757,14 +1757,22 @@
 												</select> -->
 											</div>
 										</div>
-										<div class="col-lg-12">
+										<!-- <div class="col-lg-12">
 											<div class="input-blocks search-form mb-0">
 												<label>Produto</label>
 												<input type="text" class="form-control" placeholder="Selecionar Produto">
 												<i data-feather="search" class="feather-search"></i>
 											</div>
+										</div> -->
 										</div>
-										<div class="col-lg-12">
+										<div class="card-title-head">
+											<h6><span><i data-feather="info" class="shopping-bag"></i></span>Informações do produto</h6>
+										</div>
+									<div class="row mb-3">
+										<!-- <div class="row"> -->
+
+										
+										<div class="col-lg-6 col-sm-8 col-12">
 											<div class="">
 												<select class="form-control select2" id="slc_produtos">
 													<!-- <optgroup label="Group1">
@@ -1785,13 +1793,15 @@
 												</select>
 											</div>
 										</div>
+									<!-- </div> -->
+
 									</div>
 
 									<div class="row">
 										<div class="col-lg-12">
 											<div class="modal-body-table">
 												<div class="table-responsive">
-													<table class="table datanew">
+													<table class="table" id="tabela_produtos">
 														<thead>
 															<tr>
 																<th>Produto</th>
@@ -2069,6 +2079,16 @@
 			
         </div>
 		<!-- /Main Wrapper -->
+		<div class="toast-container position-fixed top-0 end-0 p-3">
+			<div id="jsToastWarning" class="toast colored-toast bg-warning tipo-alerta" role="alert" aria-live="assertive" aria-atomic="true">
+			  <div class="toast-header bg-warning text-fixed-white tipo-alerta">
+				<strong class="me-auto" id="toast-title">Mensagem</strong>
+				<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+			  </div>
+			  <div class="toast-body" id="toast-body">
+			  </div>
+			</div>
+		  </div>
 
 
 		<div class="customizer-links" id="setdata">
