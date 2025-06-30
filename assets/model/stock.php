@@ -22,9 +22,9 @@ if (isset($_POST['request'])) {
             $response = $stock->retornar_produto();
             break;
 
-        // case 'detalhe':
-        //     $response = $stock->detalhe();
-        //     break;
+        case 'adicionar_stock':
+            $response = $stock->adicionar_stock();
+            break;
 
         default:
         $response = [
@@ -170,11 +170,11 @@ class Stock
                 // Botão que permite visualizar os detalhe
                 $action = "<div class='edit-delete-action'>
                        <a class='me-2 edit-icon p-2 detalhe-produto' href='#' data-bs-toggle='modal' data-bs-target='#view-units' data-id={$response[$i]['produto_id']}>
-														<i class='fa fa-eye' data-bs-toggle='tooltip' title='fa fa-eye'></i>
-                                                        </a>
-													<a class='me-2 p-2 alterar-produto' href='#' data-bs-toggle='modal' data-bs-target='#edit-units' data-id={$response[$i]['produto_id']}>
-                                                        <i class='fa fa-edit' data-bs-toggle='tooltip' title='fa fa-edit'></i>
-													</a>
+							<i class='fa fa-eye' data-bs-toggle='tooltip' title='fa fa-eye'></i>
+                            </a>
+						<a class='me-2 p-2 alterar-produto' href='#' data-bs-toggle='modal' data-bs-target='#edit-units' data-id={$response[$i]['produto_id']}>
+                            <i class='fa fa-edit' data-bs-toggle='tooltip' title='fa fa-edit'></i>
+						</a>
                     </div>";
                 // $cor = $response[$i]['activo'] == 1 ? 'badge-linesuccess' : 'badge-linedanger ';
                 // $activo = $response[$i]['activo'] == 1 ? 'Activo' : 'Desactivado';
@@ -283,5 +283,48 @@ class Stock
         }
 
         return $response;
+    }
+
+    public function adicionar_stock() {
+        global $crud;
+        global $postData;
+        // Espera receber via POST:
+        // produtos[] (array de IDs), quantidades[] (array de quantidades), armazem_id, etc.
+    
+        $produtos = $postData['produtos']; // Array de IDs dos produtos
+        $quantidades = $postData['quantidades']; // Array de IDs dos produtos;
+        $armazem_id = $postData['armazem_id']; // Array de IDs dos produtos;
+    
+        $response = [];
+    
+        if (empty($produtos) || empty($quantidades) || !$armazem_id) {
+            $response = [
+                "status" => false,
+                "message" => "Dados insuficientes para registrar o stock."
+            ];
+            echo json_encode($response);
+            exit;
+        }
+    
+        // Insere cada produto no estoque
+        foreach ($produtos as $index => $produto_id) {
+            $quantidade = isset($quantidades[$index]) ? $quantidades[$index] : 0;
+            if ($produto_id && $quantidade > 0) {
+                $dados = [
+                    "produto_id" => $produto_id,
+                    "armazem_id" => $armazem_id,
+                    "quantidade" => $quantidade,
+                    "data_registro" => date('Y-m-d H:i:s')
+                ];
+                $crud->create("item_produto", $dados);
+            }
+        }
+    
+        $response = [
+            "status" => true,
+            "message" => "Stock registrado com sucesso!"
+        ];
+        echo json_encode($response);
+        exit;
     }
 }
