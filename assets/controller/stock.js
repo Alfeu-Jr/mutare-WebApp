@@ -85,7 +85,10 @@ class adicionarStock extends selectFiller {
         // $("#modal-categoria-erro").modal("show");
         $('#slc_produtos').on('change', function() {
           const selectedValue = $(this).val();
-          self.esccolhaProduto(selectedValue);
+          // console.log(selectedValue);
+                 ($(this).val() !== '' && $(this).val() !== null) ? self.esccolhaProduto(selectedValue) : true;
+
+          // self.esccolhaProduto(selectedValue);
           // Faça o que desejar com o valor selecionado
           // console.log('Produto selecionado:', selectedValue);
 
@@ -138,6 +141,41 @@ class adicionarStock extends selectFiller {
             $('.dataTables_filter').appendTo('.search-input');
           },	
         });
+
+        $('#tabela_produtos tbody').on('click', '.confirm-text', function () {
+              self.table
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+          });
+
+              // Event delegation para botões de quantidade
+            $(document).on('click', '.plus-btn', function() {
+                const input = $(this).siblings('.quntity-input');
+                const currentValue = parseInt(input.val()) || 0;
+                input.val(currentValue + 1);
+            });
+            
+            $(document).on('click', '.minus-btn', function() {
+                const input = $(this).siblings('.quntity-input');
+                const currentValue = parseInt(input.val()) || 0;
+                if (currentValue > 0) {
+                    input.val(currentValue - 1);
+                }
+            });
+            
+            // Event delegation para botão de excluir
+            $(document).on('click', '.delete-btn', function() {
+                if (confirm('Tem certeza que deseja excluir este registro?')) {
+                    $(this).closest('tr').fadeOut(300, function() {
+                        $(this).remove();
+                    });
+                }
+            });
+    //          $('#tabela_produtos').on('click', '.confirm-text', function(e) {
+    //     e.preventDefault();
+    //     $(this).closest('tr').remove();
+    // });
 
       }
 
@@ -249,8 +287,10 @@ class adicionarStock extends selectFiller {
           image:  ''
       });
   }
-  addNewRecord(productData) {
-    // Cria a nova linha como um array para DataTables
+addNewRecord(productData) {
+    // Clear the select2 input
+    $('#slc_produtos').val('').trigger('change'); 
+
     const rowData = [
         `<div class="productimgname">
             <a href="javascript:void(0);" class="product-img stock-img">
@@ -261,12 +301,11 @@ class adicionarStock extends selectFiller {
         `${productData.sku}`,
         `${productData.category}`,
         `<div class="product-quantity">
-            <span class="quantity-btn"><i data-feather="minus-circle" class="feather-search"></i></span>
-            <input type="text" class="quantity-input" value="${productData.quantity}">
-            <span class="quantity-btn">+<i data-feather="plus-circle" class="plus-circle"></i></span>
+            <span class="quntity-btn"><i data-feather="minus-circle" class="feather-search"></i></span>
+            <input type="text" class="quntity-input" value="${productData.quantity}">
+            <span class="quntity-btn">+<i data-feather="plus-circle" class="plus-circle"></i></span>
         </div>`,
-        // O último TD recebe a classe dinamicamente
-        `<td class="action-table-data">
+        `<td>
             <div class="edit-delete-action">
                 <a class="me-2 p-2" href="#" data-bs-toggle="modal" data-bs-target="#edit-units">
                     <i data-feather="edit" class="feather-edit"></i>
@@ -278,17 +317,18 @@ class adicionarStock extends selectFiller {
         </td>`
     ];
 
-    // Adiciona a linha à tabela DataTables
+    // Add the row to the DataTable
     const table = $('#tabela_produtos').DataTable();
     const rowNode = table.row.add(rowData).draw(false).node();
 
-    // Garante que o último td tenha a classe (caso DataTables remova)
-    $(rowNode).find('td:last').addClass('action-table-data');
+    // Ensure the last td has the action-table-data class
+    $(rowNode).find('td:last-child').addClass('action-table-data');
 
     if (window.feather) {
         feather.replace();
     }
-  }
+}
+
       async carregarStock() {
         self = this;
         var categorias = [];

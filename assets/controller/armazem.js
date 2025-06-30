@@ -655,11 +655,11 @@ class listaArmazem extends Lista {
 	const dataMdulo = $('#armazemjs').data('modulo');
 	// console.log(dataMdulo)
 
+  console.log('ole');
  if(dataMdulo == 'armazem-lista'){
     const listaP = new listaArmazem();
  } else if(dataMdulo == 'armazem-adicionar'){
      const listaP = new adicionarProduto();
     }
     
-    // console.log(document.getElementById('slc_armazem'));
 });

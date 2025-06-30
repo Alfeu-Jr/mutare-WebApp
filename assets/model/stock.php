@@ -221,11 +221,20 @@ class Stock
         $produto_response = $crud->read($collumns, $table, "");
 
         // $grouped = [];
-        foreach ($produto_response as $item) {
-            $caso = $item['categoria'];
-            $response[$caso][] = $item['produto'];
-            $response[$caso][] = $item['produto_id'];
-        }
+        // print_r($produto_response);
+       if (isset($produto_response['produto'])) {
+    // Handle single product case
+    $caso = $produto_response['categoria'];
+    $response[$caso][] = $produto_response['produto'];
+    $response[$caso][] = $produto_response['produto_id'];
+} else {
+    // Handle multiple products case
+    foreach ($produto_response as $item) {
+        $caso = $item['categoria'];
+        $response[$caso][] = $item['produto'];
+        $response[$caso][] = $item['produto_id'];
+    }
+}
 
         // print_r($response);
         
@@ -253,7 +262,7 @@ class Stock
 
         $cond = [];
         
-        $condicao = 'P.id = ' . $postData['id_produto'];
+        $condicao = 'p.id = ' . $postData['id_produto'];
 
             $coluna = ' p.id AS produto_id,
                         p.codigo AS produto_codigo,

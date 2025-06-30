@@ -160,7 +160,7 @@ class Armazem
                     rua_localizacao, bairro_localizacao, avenida_localizacao, a.contacto
                     FROM mutare_solucoes.armazem a 
                     LEFT OUTER JOIN mutare_solucoes.funcionario f ON a.responsavel = f.id 
-                    LEFT OUTER JOIN mutare_solucoes.item_armazem ia ON a.id = ia.armazem_id 
+                    LEFT OUTER JOIN mutare_solucoes.item_produto ia ON a.id = ia.armazem_id 
                     LEFT OUTER JOIN mutare_solucoes.produto p ON ia.produto_id = p.id where {$condicao}
                     GROUP BY a.id) as T";
         // $table = "(SELECT r.id, r.centro, r.periodo, r.ano, r.date_insert, dr.descricao, dr.periodo as periodo_estatistico, s.sector, r.valido, r.filename as filename_padrao,
