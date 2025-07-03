@@ -430,112 +430,134 @@ class adicionarStock extends selectFiller {
       // Aqui você pode enviar via AJAX ou outro processamento
     });
   }
-  
-  adicionar_stock() {
-      self = this;
-      var dadosStock = new FormData();
-  
-      function pushData(key, value) {
-          const valor = value ?? "";
-          dadosStock.append(key, valor);
-      }
-  
-      function request(dados) {
-          $.ajax({
-              url: "assets/model/request.php",
-              type: "post",
-              data: dados,
-              dataType: "JSON",
-              processData: false,
-              contentType: false,
-              success: function (response) {
-                  if (response.status == true) {
-                      Swal.fire({
-                          icon: "success",
-                          title: "Stock Registrado",
-                          html: "O stock foi guardado com sucesso!",
-                          allowEscapeKey: false,
-                          allowOutsideClick: false,
-                          confirmButtonText: "OK",
-                          preConfirm: () => {
-                              location.reload();
-                          }
-                      });
-                  }
-                  if (response.status == false) {
-                      console.error("Unknown error code:", response.code);
-                      Swal.fire({
-                          icon: "error",
-                          title: "Erro ao Registrar o Stock",
-                          html: "Ocorreu um erro ao registrar o stock. Por favor, tente novamente.",
-                      });
-                  }
-              },
-              error: function (response) {
-                  Swal.fire({
-                      icon: "error",
-                      title: "Erro ao Registrar o Stock",
-                      html:
-                          "Por favor <b><i>retorne</i></b> ao Menu Principal e tente novamente." +
-                          "<p></p> Se o erro persistir, contacte o Administrador do Sistema para resolver o problema.",
-                  });
-                  console.log("Erro no sistema, Erro - ", response.responseText);
-              },
-          });
-      }
-  
-      // pushData("request_geral", "adicionar_stock");
-  
-      // Exemplo: obtenha os IDs e quantidades dos produtos da tabela
-      var ids = [];
-      var quantities = [];
-      // $("#tabela_produtos tbody tr").each(function () {
-      //     var $row = $(this);
-      //     var id = $row.find(".produto_id").data("id");
-      //     var quantity = parseInt($row.find(".quntity-input").val());
-      //     if (id) {
-      //         ids.push(id);
-      //         quantities.push(quantity);
-      //     }
-      // });
-  
-      const setIdsAndQuantities = self.getIdsAndQuantities();
-      console.log(setIdsAndQuantities);
 
-      pushData("produtos[]", setIdsAndQuantities.id);
-      pushData("quantidades[]", setIdsAndQuantities.quantidade);
-  
-      // Adicione outros campos se necessário, como armazém, data, etc.
-      pushData("armazem_id", $("#slc_armazem").val());
-  
-      pushData("tabela", "stock");
-      pushData("request", "adicionar_stock");
-  
-      request(dadosStock);
+  adicionar_stock() {
+    self = this;
+    var dadosStock = new FormData();
+
+    function pushData(key, value) {
+      const valor = value ?? "";
+      dadosStock.append(key, valor);
+    }
+
+    function request(dados) {
+      $.ajax({
+        url: "assets/model/stock.php",
+        type: "post",
+        data: dados,
+        dataType: "JSON",
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          if (response.status == true) {
+            Swal.fire({
+              icon: "success",
+              title: "Stock Registrado",
+              html: "O stock foi guardado com sucesso!",
+              allowEscapeKey: false,
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+              preConfirm: () => {
+                location.reload();
+              },
+            });
+          }
+          if (response.status == false) {
+            console.error("Unknown error code:", response.code);
+            switch (response.code) {
+              // case 1:
+
+           
+            // Swal.fire({
+            //     icon: "error",
+            //     title: "Erro ao Registrar o Stock",
+            //     html: "Ocorreu um erro ao registrar o stock. Por favor, tente novamente.",
+            // });
+            // break;
+              case 1:
+            if (response.code == 1) {
+              Swal.fire({
+                icon: "error",
+                title: "Erro ao Registrar o Stock",
+                html: "A quantidade de produtos e quantidades não corresponde ou não há produtos selecionados.<br>Por favor, verifique os dados e tente novamente.",
+              });
+            }break;
+              case 2:
+            if (response.code == 2) {
+              Swal.fire({
+                icon: "error",
+                title: "Erro ao Registrar",
+                html: "Ocorreu um erro ao inserir os dados no banco de dados. <p>Por favor, tente novamente ou contacte o administrador do sistema.</p>",
+              });
+            }
+            break;
+              default:
+                   Swal.fire({
+                icon: "error",
+                title: "Erro ao Registrar o Stock",
+                html: "Ocorreu um erro ao registrar o stock. Por favor, tente novamente.",
+            });
+          }}
+        },
+        error: function (response) {
+          Swal.fire({
+            icon: "error",
+            title: "Erro ao Registrar o Stock",
+            html:
+              "Por favor <b><i>retorne</i></b> ao Menu Principal e tente novamente." +
+              "<p></p> Se o erro persistir, contacte o Administrador do Sistema para resolver o problema.",
+          });
+          console.log("Erro no sistema, Erro - ", response.responseText);
+        },
+      });
+    }
+
+    // pushData("request_geral", "adicionar_stock");
+
+    // Exemplo: obtenha os IDs e quantidades dos produtos da tabela
+  var setIdsAndQuantities = self.getIdsAndQuantities();
+  console.log(setIdsAndQuantities);
+
+  // Iterate over the arrays using their indices
+  for (let i = 0; i < setIdsAndQuantities.id.length; i++) {
+    pushData("produtos[]", setIdsAndQuantities.id[i]);
+    pushData("quantidades[]", setIdsAndQuantities.quantidade[i]);
+  }
+
+
+    // pushData("produtos[]", setIdsAndQuantities.id);
+    // pushData("quantidades[]", setIdsAndQuantities.quantidade);
+
+    // Adicione outros campos se necessário, como armazém, data, etc.
+    pushData("armazem_id", $("#slc_armazem").val());
+
+    // pushData("tabela", "stock");
+    pushData("request", "adicionar_stock");
+
+    request(dadosStock);
   }
 
   // Method 2: Get only IDs and quantities as separate arrays
-      getIdsAndQuantities() {
-      var ids = [];
-      var quantities = [];
-      
-      $('#tabela_produtos tbody tr').each(function() {
-          var $row = $(this);
-          var id = $row.find('.produto_id').data('id');
-          var quantity = parseInt($row.find('.quntity-input').val());
-          
-          if (id) {
-              ids.push(id);
-              quantities.push(quantity);
-          }
-      });
-      
-      return {
-          id: ids,
-          quantidade: quantities
-      };
-    }
+  getIdsAndQuantities() {
+    var ids = [];
+    var quantities = [];
 
+    $("#tabela_produtos tbody tr").each(function () {
+      var $row = $(this);
+      var id = $row.find(".produto_id").data("id");
+      var quantity = parseInt($row.find(".quntity-input").val());
+
+      if (id) {
+        ids.push(id);
+        quantities.push(quantity);
+      }
+    });
+
+    return {
+      id: ids,
+      quantidade: quantities,
+    };
+  }
 
   showToastWarning(title, message) {
     [];

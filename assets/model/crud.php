@@ -86,24 +86,34 @@ class crud
         global $con;
         $columns = "";
         $values = "";
-
+    
         for ($i = 0; $i < count($column); $i++) {
             $columns .= $column[$i];
-
             $values .= "'" . $value[$i] . "'";
             if ($i != count($column) - 1) {
                 $columns .= ", ";
                 $values .= ", ";
             }
         }
-        global $con;
+    
+        // Check for existing record
+        $checkSql = "SELECT COUNT(*) FROM " . $table . " WHERE " . $column[0] . " = '" . $value[0] . "'";
+        $result = mysqli_query($con, $checkSql);
+        $row = mysqli_fetch_array($result);
+    
+        if ($row[0] > 0) {
+            return "Error: Record already exists.";
+        }
+    
         $sql = "INSERT INTO " . $table . "(" . $columns . ") values (" . $values . ")";
+    
         if (mysqli_query($con, $sql)) {
             return true;
         } else {
             return "Error: " . $sql . "<br>" . mysqli_error($con);
         }
     }
+    
 
     public function insertMulti($tabela, $coluna, $valor)
     {

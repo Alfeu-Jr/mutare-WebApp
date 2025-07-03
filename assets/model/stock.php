@@ -17,7 +17,7 @@ if (isset($_POST['request'])) {
         case 'stock_lista':
             $response = $stock->stock_lista();
             break;
-            
+
         case 'dados_produto':
             $response = $stock->retornar_produto();
             break;
@@ -27,11 +27,11 @@ if (isset($_POST['request'])) {
             break;
 
         default:
-        $response = [
-            'status' => false,
-            'message' => 'Ação não reconhecida ou não implementada.'
-        ];
-        break;
+            $response = [
+                'status' => false,
+                'message' => 'Ação não reconhecida ou não implementada.'
+            ];
+            break;
     }
 
     $GLOBALS['con']->close();
@@ -120,7 +120,7 @@ class Stock
         } elseif (!empty($newArray)) {
             $searchQuery = $searchQuery2;
         }
-                    $table ="(SELECT 
+        $table = "(SELECT 
                         p.id AS produto_id,
                         p.codigo AS produto_codigo,
                         p.nome_produto,
@@ -144,8 +144,8 @@ class Stock
                         p.activo = 1
                     ORDER BY 
                         p.nome_produto ASC,
-                        a.armazem ASC) as T";      
-        
+                        a.armazem ASC) as T";
+
         // Contagem total de registros sem filtros
         $totalRecords = $crud->count($table, true);
         //resultado sem filtros
@@ -201,20 +201,20 @@ class Stock
         // print_r($response);
         return $response;
     }
-        public function stock_lista()
+    public function stock_lista()
     {
         global $crud;
         // $id = $_POST['id_produto'];
-    
+
         session_start();
         // $userId = $_SESSION['user_id'];
         // $userFuncaoId = $_SESSION['funcao'];
         $response = [];
         // $file_response = '';
-    
+
         // Colunas conforme seu SELECT principal de produto
         $collumns = 'p.nome_produto as produto, c.categoria, p.id as produto_id';
-    
+
         $table = "produto p 
                 left join categoria c on p.categoria_id = c.id";
 
@@ -222,25 +222,25 @@ class Stock
 
         // $grouped = [];
         // print_r($produto_response);
-       if (isset($produto_response['produto'])) {
-    // Handle single product case
-    $caso = $produto_response['categoria'];
-    $response[$caso][] = $produto_response['produto'];
-    $response[$caso][] = $produto_response['produto_id'];
-} else {
-    // Handle multiple products case
-    foreach ($produto_response as $item) {
-        $caso = $item['categoria'];
-        $response[$caso][] = $item['produto'];
-        $response[$caso][] = $item['produto_id'];
-    }
-}
+        if (isset($produto_response['produto'])) {
+            // Handle single product case
+            $caso = $produto_response['categoria'];
+            $response[$caso][] = $produto_response['produto'];
+            $response[$caso][] = $produto_response['produto_id'];
+        } else {
+            // Handle multiple products case
+            foreach ($produto_response as $item) {
+                $caso = $item['categoria'];
+                $response[$caso][] = $item['produto'];
+                $response[$caso][] = $item['produto_id'];
+            }
+        }
 
         // print_r($response);
-        
+
 
         //$response = $produto_response; // Se não houver arquivos, apenas os dados do produto
-    
+
         if (count($response) > 0) {
             $response = array(
                 "status" => true,
@@ -249,11 +249,12 @@ class Stock
         } else {
             $response = array("status" => false, "data" => "Nenhum registro encontrado");
         }
-    
-        return($response);
+
+        return ($response);
     }
 
-    public function retornar_produto(){
+    public function retornar_produto()
+    {
         global $crud;
         global $postData;
         $tabela = 'produto p
@@ -261,10 +262,10 @@ class Stock
         $condicao = '';
 
         $cond = [];
-        
+
         $condicao = 'p.id = ' . $postData['id_produto'];
 
-            $coluna = ' p.id AS produto_id,
+        $coluna = ' p.id AS produto_id,
                         p.codigo AS produto_codigo,
                         p.nome_produto,
                         p.marca_produto,
@@ -275,7 +276,7 @@ class Stock
                         c.categoria';
 
         $response = $crud->read($coluna, $tabela, $condicao);
-        
+
         if (count($response) > 0) {
             $response = array("status" => true, "data" => $response);
         } else {
@@ -285,46 +286,78 @@ class Stock
         return $response;
     }
 
-    public function adicionar_stock() {
+    public function adicionar_stock()
+    {
         global $crud;
         global $postData;
-        // Espera receber via POST:
-        // produtos[] (array de IDs), quantidades[] (array de quantidades), armazem_id, etc.
-    
-        $produtos = $postData['produtos']; // Array de IDs dos produtos
-        $quantidades = $postData['quantidades']; // Array de IDs dos produtos;
-        $armazem_id = $postData['armazem_id']; // Array de IDs dos produtos;
-    
         $response = [];
-    
-        if (empty($produtos) || empty($quantidades) || !$armazem_id) {
+
+        $tabela = 'entrada';
+        $tabelaStock = 'item_entrada_stock';
+
+        // $codigo = uniqid();
+        $lote = 'LOTE-' . date('Ymd') . '-' . uniqid();
+
+        $produtos = $postData['produtos'];
+        $quantidades = $postData['quantidades'];
+
+        $coluna[] = 'data_entrada';
+        $valor[] = $postData['data_entrada'] ?? date('Y-m-d H:i:s');
+
+        $coluna[] = 'lote';
+        $valor[] = $lote;
+
+        $coluna[] = 'armazem_id';
+        $valor[] = $postData['armazem_id'];
+
+        // $coluna[] = 'responsalvel';
+        // $valor[] = $_SESSION['user_id'];
+
+        try {
+
+            // Se não houver produtos ou quantidades, retorna erro
+            if ((count($produtos) == 0) || (count($produtos) != count($quantidades))) {
+                throw new Exception(code: 1);
+            }
+
+            if ($crud->insert($tabela, $coluna, $valor) != true) {
+                throw new Exception(code: 2);
+            }
+            foreach ($produtos as $index => $produto_id) {
+                $quantidade = isset($quantidades[$index]) ? $quantidades[$index] : 0;
+            
+                // Initialize arrays for each iteration
+                $colunaStock = [];
+                $valorStock = [];
+            
+                $colunaStock[] = 'codigo_lote';
+                $valorStock[] = $lote;
+            
+                $colunaStock[] = 'produto_id';
+                $valorStock[] = $produto_id;
+            
+                $colunaStock[] = 'quantidade';
+                $valorStock[] = $quantidade;
+            
+                if ($crud->insert($tabelaStock, $colunaStock, $valorStock) != true) {
+                    throw new Exception(code: 3);
+                }
+            }
+            
+
+
+
+
             $response = [
-                "status" => false,
-                "message" => "Dados insuficientes para registrar o stock."
+                "status" => true,
+                "message" => "Stock registrado com sucesso!"
             ];
             echo json_encode($response);
             exit;
+        } catch (Exception $e) {
+            $response = array("status" => false, "code" => $e->getCode(), "mess" => ($e->getMessage()));
+        } finally {
+            return $response;
         }
-    
-        // Insere cada produto no estoque
-        foreach ($produtos as $index => $produto_id) {
-            $quantidade = isset($quantidades[$index]) ? $quantidades[$index] : 0;
-            if ($produto_id && $quantidade > 0) {
-                $dados = [
-                    "produto_id" => $produto_id,
-                    "armazem_id" => $armazem_id,
-                    "quantidade" => $quantidade,
-                    "data_registro" => date('Y-m-d H:i:s')
-                ];
-                $crud->create("item_produto", $dados);
-            }
-        }
-    
-        $response = [
-            "status" => true,
-            "message" => "Stock registrado com sucesso!"
-        ];
-        echo json_encode($response);
-        exit;
     }
 }
