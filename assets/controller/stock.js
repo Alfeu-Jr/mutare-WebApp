@@ -441,7 +441,7 @@ class adicionarStock extends selectFiller {
   
       function request(dados) {
           $.ajax({
-              url: "assets/model/request.php",
+              url: "assets/model/stock.php",
               type: "post",
               data: dados,
               dataType: "JSON",

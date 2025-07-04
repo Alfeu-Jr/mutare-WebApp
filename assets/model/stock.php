@@ -238,7 +238,6 @@ class Stock
 
         // print_r($response);
 
-
         //$response = $produto_response; // Se não houver arquivos, apenas os dados do produto
 
         if (count($response) > 0) {
