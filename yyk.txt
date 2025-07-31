@@ -4,9 +4,4 @@ https://dreamspos.dreamstechnologies.com/html/template/expired-products.html
 
 sistema de gestão de inventário com muito conteúdo textual em inglês. traduza apenas o conteúdo visível (sem alterar classes ou atributos HTML) de forma segura para Português de Portugal (antigo acordo ortografia) e envie para mim o novo ficheiro:
 
-
-   $host = "mutare-solucoes-alfeupassanduca01-ec02.l.aivencloud.com";
-   $port = 13991;
-$user = "avnadmin";
-$password = "AVNS_5JLeqewOjIxmRu44LoH";
-$dbname = "mutare_solucoes";
+"mutare-solucoes-alfeupassanduca01-ec02.l.aivencloud.com"13991"avnadmin""AVNS_5JLeqewOjIxmRu44LoH""mutare_solucoes";
