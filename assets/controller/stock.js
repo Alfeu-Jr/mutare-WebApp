@@ -46,72 +46,72 @@ class detalheStock extends Lista {
 
     self = this;
 
-    // try {
-    //   await $.ajax({
-    //     url: "assets/model/stock.php",
-    //     method: "POST",
-    //     data: { request: "detalhe", id_stock: this.id_stock },
-    //     dataType: "json",
+    try {
+      await $.ajax({
+        url: "assets/model/stock.php",
+        method: "POST",
+        data: { request: "detalhe", id_stock: this.id_stock },
+        dataType: "json",
 
-    //     success: function (response) {
-    //       if (response.status == true) {
-    //         self.dados_stock = response.data;
+        success: function (response) {
+          if (response.status == true) {
+            self.dados_stock = response.data;
 
-    //         $("#txt_armazem").val(response.data.detalhe_stock.armazem);
-    //         console.log(response.data.detalhe_stock.armazem);
-    //         // $("#data_entrada").text(response.data.txt_data_registro);
-    //         $("#txt_data_registro").val(response.data.detalhe_stock.data_entrada);
-    //         $("#txt_user_registro").val(response.data.detalhe_stock.responsavel_registro);
-    //         // self.addRecordFromObject(response.data.lista_stock);
-    //         // console.log(response.data.lista_stock);
-    //       //   response.data.lista_stock.forEach(function(item) {
-    //       //     self.addRecordFromObject(item);
-    //       // });
-    //         // $("#txt_categoria").text(response.data.nome_categoria);
-    //         // $("#txt_subcatgoria").text(response.data.nome_subcategoria);
-    //         // $("#txt_marca").text(response.data.marca_produto);
-    //         // $("#txt_unidade").text(response.data.produto_unidade);
-    //         // $("#txt_codigo_stock").text(response.data.produto_codigo);
-    //         // $("#txt_quantidade_minima").text(
-    //         //   response.data.quantidade_minima_alerta
-    //         // );
-    //         // $("#txt_quantidade").text(response.data.quantidade_estoque);
-    //         // // $('#txt_imposto').text(response.data.filename);
-    //         // // $('#txt_desconto').text(response.data.id);
-    //         // $("#txt_preco").text(response.data.produto_preco);
+            $("#txt_armazem").val(response.data.detalhe_stock.armazem);
+            console.log(response.data.detalhe_stock.armazem);
+            // $("#data_entrada").text(response.data.txt_data_registro);
+            $("#txt_data_registro").val(response.data.detalhe_stock.data_entrada);
+            $("#txt_user_registro").val(response.data.detalhe_stock.responsavel_registro);
+            // self.addRecordFromObject(response.data.lista_stock);
+            // console.log(response.data.lista_stock);
+          //   response.data.lista_stock.forEach(function(item) {
+          //     self.addRecordFromObject(item);
+          // });
+            // $("#txt_categoria").text(response.data.nome_categoria);
+            // $("#txt_subcatgoria").text(response.data.nome_subcategoria);
+            // $("#txt_marca").text(response.data.marca_produto);
+            // $("#txt_unidade").text(response.data.produto_unidade);
+            // $("#txt_codigo_stock").text(response.data.produto_codigo);
+            // $("#txt_quantidade_minima").text(
+            //   response.data.quantidade_minima_alerta
+            // );
+            // $("#txt_quantidade").text(response.data.quantidade_estoque);
+            // // $('#txt_imposto').text(response.data.filename);
+            // // $('#txt_desconto').text(response.data.id);
+            // $("#txt_preco").text(response.data.produto_preco);
 
-    //         // $("#txt_estado").text(response.data.produto_estado);
-    //         // $("#txt_descricao").text(response.data.produto_descricao);
+            // $("#txt_estado").text(response.data.produto_estado);
+            // $("#txt_descricao").text(response.data.produto_descricao);
 
-    //         //Secção dos fotos
+            //Secção dos fotos
 
-    //         // ficheiro = "arquivos/produto/" + response.data.localizacao_produto + "/" + response.data.filename;
+            // ficheiro = "arquivos/produto/" + response.data.localizacao_produto + "/" + response.data.filename;
 
-    //         // //verifica se o formato do ficheiro é compatível
-    //         // if((response.data.filename.toLowerCase()).includes('.pdf')){
-    //         //   $('#ficheiro_produto').attr('src', ficheiro);
-    //         //   $('#ver_ficheiro').attr('href', ficheiro);
-    //         // }else{
-    //         //   $('.ficheiro-compativel').each(function () {
-    //         //     $(this).addClass("d-none");
-    //         //   });
-    //         //   $('.ficheiro-incompativel').removeClass("d-none");
-    //         // }
-    //       }
-    //     },
-    //     erro: function (response) {
-    //       Swal.fire({
-    //         icon: "error",
-    //         title: "Detalhes do Produto",
-    //         html: "Ocorreu um erro ao carregar os dados do produto, por favor <b><i>retorne</i></b> ao Menu Principal e tente novamente.",
-    //       });
-    //       console.log("Erro no sistema, Erro - ", response.responseText);
-    //     },
-    //   });
-    // } catch (error) {
-    //   console.error(error.responseText);
-    //   // console.log("Erro no sistema, Erro - ", response.responseText);
-    // }
+            // //verifica se o formato do ficheiro é compatível
+            // if((response.data.filename.toLowerCase()).includes('.pdf')){
+            //   $('#ficheiro_produto').attr('src', ficheiro);
+            //   $('#ver_ficheiro').attr('href', ficheiro);
+            // }else{
+            //   $('.ficheiro-compativel').each(function () {
+            //     $(this).addClass("d-none");
+            //   });
+            //   $('.ficheiro-incompativel').removeClass("d-none");
+            // }
+          }
+        },
+        erro: function (response) {
+          Swal.fire({
+            icon: "error",
+            title: "Detalhes do Produto",
+            html: "Ocorreu um erro ao carregar os dados do produto, por favor <b><i>retorne</i></b> ao Menu Principal e tente novamente.",
+          });
+          console.log("Erro no sistema, Erro - ", response.responseText);
+        },
+      });
+    } catch (error) {
+      console.error(error.responseText);
+      // console.log("Erro no sistema, Erro - ", response.responseText);
+    }
   }
 
   addRecordFromObject(obj) {

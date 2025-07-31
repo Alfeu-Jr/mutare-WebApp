@@ -381,18 +381,7 @@ class Stock
 									<i data-feather='trash-2' class='feather-trash-2'></i>
 								</a>
 							</div>";
-                                                // <div class='edit-delete-action'>
-                    //    <a class='me-2 edit-icon p-2 visualizar-entrada' href='#' data-bs-toggle='modal' data-bs-target='#view-units' data-id={$response[$i]['id']}>
-					// 									<i class='fa fa-eye' data-bs-toggle='tooltip' title='fa fa-eye'></i>
-                    //                                     </a>
-					// 								<a class='me-2 p-2 alterar-entrada' href='#' data-bs-toggle='modal' data-bs-target='#edit-units' data-id={$response[$i]['id']}>
-                    //                                     <i class='fa fa-edit' data-bs-toggle='tooltip' title='fa fa-edit'></i>
-					// 								</a>
-                    // </div>
-                   
-               
-                // $action = $viewButton;
-
+                                                
                 // Verificar se as chaves existem e não são nulas
                 if (isset($response[$i]) && !empty($response[$i])) {
                     $response[$i]['action'] = $action;

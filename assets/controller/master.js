@@ -27,6 +27,8 @@ export class Lista {
     this.filtroColuna = [];
     this.keysToRetrieve = [];
     this.filtroArray = [];
+    this.sort = []; // Default to an empty array
+
     // this.sort = ;
 
     // this.sort = Array.isArray(myArray) > 0 ? array : [];
@@ -64,7 +66,9 @@ export class Lista {
             column.search = { search: '' };
         });
       },
-      order: [Array.isArray(this.sort) > 0 ? this.sort : []],
+      // order: [Array.isArray(this.sort) > 0 ? this.sort : []],
+      order: this.sort.length > 0 ? this.sort : [],
+
 
       dom: 'Bflrtip',
       "buttons": ["excel", "pdf",
