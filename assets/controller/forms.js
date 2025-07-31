@@ -16,4 +16,17 @@ $(document).ready(function() {
         // Combine whole and decimal parts
         $(this).val(wholePart + decimalPart);
     });
+    $('.contacto').on('input', function() {
+        let inputValue = $(this).val();
+        
+        // Remove all non-digit characters
+        inputValue = inputValue.replace(/[^0-9]/g, '');
+    
+        // Define the whole part and decimal part
+        let wholePart = inputValue.slice(0, 2) + ' ' + inputValue.slice(2, 5) + ' ' + inputValue.slice(5, 9);
+        
+        // Set the formatted value back to the input
+        $(this).val(wholePart.trim());
+    });
+    
 });

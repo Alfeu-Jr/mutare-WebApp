@@ -156,8 +156,9 @@ class Armazem
                     // FROM mutare_solucoes.armazem a 
                     // Left outer join mutare_solucoes.funcionario f ON ( a.responsavel = f.id  ) where {$condicao}) as T";
 
-                    $table = "(SELECT a.id, a.armazem AS armazem, a.provincia_localizacao, a.responsavel, COUNT(p.id) AS total_produtos, SUM(ia.quantidade) AS stock_total, a.activo as activo,
-                    rua_localizacao, bairro_localizacao, avenida_localizacao, a.contacto
+                    $table = "(SELECT a.id, a.armazem AS armazem, a.provincia_localizacao, a.responsavel, COUNT(p.id) AS total_produtos, SUM(ia.quantidade) AS stock_total, a.activo as estado_activo,
+                    rua_localizacao, bairro_localizacao, avenida_localizacao, a.contacto,
+                    CASE WHEN a.activo = 1 THEN 'Activo' ELSE 'Desactivado' END AS activo
                     FROM mutare_solucoes.armazem a 
                     LEFT OUTER JOIN mutare_solucoes.funcionario f ON a.responsavel = f.id 
                     LEFT OUTER JOIN mutare_solucoes.item_produto ia ON a.id = ia.armazem_id 
@@ -197,8 +198,8 @@ class Armazem
                                                         <i class='fa fa-edit' data-bs-toggle='tooltip' title='fa fa-edit'></i>
 													</a>
                     </div>";
-                $cor = $response[$i]['activo'] == 1 ? 'badge-linesuccess' : 'badge-linedanger ';
-                $activo = $response[$i]['activo'] == 1 ? 'Activo' : 'Desactivado';
+                $cor = $response[$i]['estado_activo'] == 1 ? 'badge-linesuccess' : 'badge-linedanger ';
+                $activo = $response[$i]['activo'];
 
                 $estado = " <span class='badge {$cor}'>{$activo}</span>";
 

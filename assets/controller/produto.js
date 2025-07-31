@@ -9,38 +9,13 @@ class listaProduto extends Lista {
     }
 
     init(){ 
-		//   console.log('ano')
-        	// Datatable
-          
-      // if($('.datatable-new').length > 0) {
-      //   $('.datatable-new').DataTable({
-      //     "bFilter": true,
-      //     "sDom": 'fBtlpi',  
-      //     "ordering": true,
-      //     "language": {
-      //       search: ' ',
-      //       sLengthMenu: '_MENU_',
-      //       searchPlaceholder: "Search",
-      //       info: "_START_ - _END_ of _TOTAL_ items",
-      //       paginate: {
-      //         next: ' <i class=" fa fa-angle-right"></i>',
-      //         previous: '<i class="fa fa-angle-left"></i> '
-      //       },
-      //     },
-      //     initComplete: (settings, json)=>{
-      //       $('.dataTables_filter').appendTo('#tableSearch');
-      //       $('.dataTables_filter').appendTo('.search-input');
-      //     },	
-      //   });
-      // }
-
       self = this;
    
     this.nomeTabela = "tabela_produto";
     this.url = "assets/model/produto.php";
 
     this.colunas = ['nome_produto',
-      'codigo_stock',
+      'codigo_unidade',
       'nome_categoria',
       'marca_produto',
       'preco_de_venda',
@@ -59,12 +34,25 @@ class listaProduto extends Lista {
 
     this.lista();
 
-    
-    $('#tabela_produto').on('click', '.detalhe-produto', function () {
-      var id = $(this).data('id');
-      window.open("product-details.html?id_produto=" + id, "_self");
-
+    $(this.tabela)
+    .find("tr")
+    .each(function () {
+      $(this).find("td:last").addClass("action-table-data");
     });
+
+        self.tabela.on('draw', function() {
+          if (window.feather) {
+            feather.replace();
+          }
+    // 
+  });
+
+    
+    // $('#tabela_produto').on('click', '.detalhe-produto', function () {
+    //   var id = $(this).data('id');
+    //   window.open("product-details.html?id_produto=" + id, "_self");
+
+    // });
     }
 }
 
@@ -72,34 +60,42 @@ class adicionarProduto extends selectFiller {
     constructor(){
         super();
         self = this;
-            this.init();
-
+        this.init();
     }
 
     async init(){
         await this.getSelect('categoria', 'slc_categoria', ['categoria', 'id', 'id']);
-        await this.getSelect('subcategoria', 'txt_subcategoria', ['subcategoria', 'id', 'id']);
+        await this.getSelect('subcategoria', 'txt_subcategoria', ['subcategoria', 'subcategoria', 'id']);
 
         $('#submeter-adicionar-categoria').on('click', function () {
           $("#txt_nova_categoria").val().trim().length > 0 ? self.guardar_categoria() : true;
         });
 
-        this.codigostock();
+        this.codigo_unidade();
 
         $('#btn_gerar_codigo').on('click', function(e) {
-          self.codigostock();
+          self.codigo_unidade();
         }); 
         
         this.formcheck();
         $(".js-select2-tags").select2({
           tags: true
         });
+
+        $('#slc_tipovenda').on('change', function() {
+          var $embalagemDiv = $('.venda-embalagem');
+          if ($(this).val() === 'Embalagem') {
+            $embalagemDiv.removeClass('d-none');
+          } else {
+            $embalagemDiv.addClass('d-none');
+          }
+        });
       }
 
-      codigostock() {
+      codigo_unidade() {
         const now = new Date();
         const microseconds = now.getTime() * 150 + Math.floor(now.getMilliseconds() * 110);
-        $('#txt_codigostock').val(String(microseconds).slice(-12).padStart(12, '1'));
+        $('#txt_codigo_unidade').val(String(microseconds).slice(-12).padStart(12, '1'));
       }
     
       
@@ -178,7 +174,10 @@ guardar_categoria() {
             //   }
             // });
             $('#modal-adicionar-categoria').modal('hide')
-            $('#slc_categoria').select2();
+          // Refresh Select2 remote data
+            $('#slc_categoria').val('').trigger('change'); // Clear selection
+            $('#slc_categoria').select2('close'); // Close dropdown if open
+            $('#slc_categoria').select2('open');  // Re-open to trigger AJAX reload
           }
 
           if (response.status == false) {
@@ -254,7 +253,8 @@ adicionar_produto() {
                       allowOutsideClick: false,
                       confirmButtonText: "OK",
                       preConfirm: () => {
-                                                location.reload();
+                        document.getElementById("form_adicionarproduto").reset();
+                          location.reload();
                           // $('#form_adicionarproduto')[0].reset();
                           // $('#form_adicionarproduto').removeClass('was-validated');
                           // Atualize sua tabela/lista de produtos se necessário
@@ -317,43 +317,46 @@ adicionar_produto() {
       "categoria_id",
       "subcategoria",
       "tipo_venda",
-      "codigo_stock",
+      "codigo_unidade",
       "descricao",
       "quantidade",
       "preco",
       "peso",
-      "quantidade_alerta"
+      "quantidade_alerta",
+      "medida"
       // "data_fabricacao",
       // "validade"
   ];
   const valores = [
       // $("#slc_armazem").val(),
-      $("#txt_nomeproduto").val(),
-      $("#txt_marcaproduto").val(),
-      $("#slc_categoria").val(),
-      $("#txt_subcategoria").val(),
-      $("#slc_tipovenda").val(),
-      $("#txt_codigostock").val(),
-      $("#txt_descricao").val(),
-      $("#txt_quantidade").val(),
-      $("#txt_preco").val().replace(',', '.'),
-      $("#txt_peso").val(),
-      $("#txt_quantidaalerta").val()
+      $("#txt_nomeproduto").val().trim(),
+      $("#txt_marcaproduto").val().trim(),
+      $("#slc_categoria").val().trim(),
+      $("#txt_subcategoria").val().trim(),
+      $("#slc_tipovenda").val().trim(),
+      $("#txt_codigo_unidade").val().trim(),
+      $("#txt_descricao").val().trim(),
+      $("#txt_quantidade_embalagem").val().trim(),
+      $("#txt_preco").val().replace(',', '.').trim(),
+      $("#txt_peso").val().trim(),
+      $("#txt_quantidaalerta").val().trim(),
+      $("#slc_medida").val().trim()
       // $("#txt_datafabricacao").val(),
       // $("#txt_validade").val()
   ];
 
-  campos.forEach(function (file) {
-      pushData("coluna[]", file);
-  });
-
-  valores.forEach(function (file) {
-      pushData("valores[]", file);
-  });
+  campos.forEach(function (campo, index) {
+    const valor = valores[index];
+    if (valor !== undefined && valor !== null && valor !== "") {
+        pushData("coluna[]", campo);
+        pushData("valores[]", valor);
+    }
+});
 
   // Exemplo de condicao: ["nome_produto", $("#txt_nomeproduto").val()]
   const condicao = [
-      ["nome_produto", $("#txt_nomeproduto").val()]
+      ["nome_produto", $("#txt_nomeproduto").val()],
+      ["marca_produto", $("#txt_marcaproduto").val()]
   ];
 
   condicao.forEach(function (condition, index) {
@@ -452,7 +455,6 @@ class detalheProduto{
 // $(document).ready(function () {
     document.addEventListener("DOMContentLoaded", function() {
 	const dataMdulo = $('#produtojs').data('modulo');
-	// console.log(dataMdulo)
 
  if(dataMdulo == 'produto-lista'){
     const listaP = new listaProduto();

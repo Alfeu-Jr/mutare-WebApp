@@ -134,8 +134,7 @@ class Produto
                                     nome_produto like '%" . $searchValue . "%' or
                                     marca_produto like '%" . $searchValue . "%' or
                                     nome_categoria like '%" . $searchValue . "%' or
-                                    nome_subcategoria like '%" . $searchValue . "%' or
-                                    responsavel like '%" . $searchValue . "%') ";
+                                    nome_subcategoria like '%" . $searchValue . "%') ";
             if (!empty($newArray)) {
                 $searchQuery .= " and " . $searchQuery2;
             }
@@ -148,7 +147,7 @@ class Produto
                         p.nome_produto,
                         p.marca_produto,
                         p.preco as preco_de_venda,
-                        p.codigo_stock,
+                        p.codigo_unidade,
                         p.tipo_venda,
                         p.tipo_produto,
                         a.armazem AS nome_armazem,
@@ -190,19 +189,20 @@ class Produto
         if ($len > 0) {
             for ($i = 0; $i < $len; $i++) {
                 // Botão que permite visualizar os detalhe
-                $action = "<div class='edit-delete-action'>
-                       <a class='me-2 edit-icon p-2 detalhe-produto' href='#' data-bs-toggle='modal' data-bs-target='#view-units' data-id={$response[$i]['produto_id']}>
-														<i class='fa fa-eye' data-bs-toggle='tooltip' title='fa fa-eye'></i>
-                                                        </a>
-													<a class='me-2 p-2 alterar-produto' href='#' data-bs-toggle='modal' data-bs-target='#edit-units' data-id={$response[$i]['produto_id']}>
-                                                        <i class='fa fa-edit' data-bs-toggle='tooltip' title='fa fa-edit'></i>
+              
+                    $action = "<div class='edit-delete-action'>
+                    <a class='me-2 edit-icon p-2 detalhe-produto' href='product-details.html?id_produto={$response[$i]['produto_id']}' data-id='{$response[$i]['produto_id']}'>
+														<i data-feather='eye' class='action-eye'></i>
 													</a>
-                    </div>";
-                // $cor = $response[$i]['activo'] == 1 ? 'badge-linesuccess' : 'badge-linedanger ';
-                // $activo = $response[$i]['activo'] == 1 ? 'Activo' : 'Desactivado';
-
-                // $estado = " <span class='badge {$cor}'>{$activo}</span>";
-
+                        
+                </div>";
+                // <a class='me-2 p-2 editar-produto' href='edit-product.html' data-id='{$response[$i]['produto_id']}'>
+				// 										<i data-feather='edit' class='feather-edit'></i>
+				// 									</a>
+                // <a class='confirm-text p-2 apagar-produto' href='javascript:void(0);' data-id='{$response[$i]['produto_id']}'>
+				// 										<i data-feather='trash-2' class='feather-trash-2'></i>
+				// 									</a>
+               
                 // Verificar se as chaves existem e não são nulas
                 if (isset($response[$i]) && !empty($response[$i])) {
                     $response[$i]['action'] = $action;
@@ -240,7 +240,7 @@ class Produto
     p.subcategoria AS nome_subcategoria,
     p.marca_produto,
     p.unidade_medida AS produto_unidade,
-    p.codigo_stock AS produto_codigo,
+    p.codigo_unidade AS produto_codigo,
     p.quantidade_alerta as quantidade_minima_alerta,
     COALESCE(ip.quantidade, 0) AS quantidade_estoque,
     p.preco AS produto_preco,

@@ -1,5 +1,6 @@
 import { selectFiller } from './master.js';
 import { Lista } from './master.js';
+
 class listaArmazem extends Lista {
   constructor() {
     //   console.log('ano')

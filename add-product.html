@@ -358,7 +358,7 @@
 							</ul>
 						</li>
 						<li class="submenu-open"> 
-							<h6 class="submenu-hdr">Invententario</h6>
+							<h6 class="submenu-hdr">Inventario</h6>
 							<ul>
 								<li><a href="product-list.html"><i data-feather="box"></i><span>Lista de Produtos</span></a></li>
 								<!-- <li><a href="add-product.html"><i data-feather="plus-square"></i><span>Create Product</span></a></li> -->
@@ -1356,7 +1356,7 @@
 											<div class="row">
 												<div class="col-lg-4 col-sm-6 col-12">
 													<div class="mb-3 add-product">
-														<label class="form-label">Nome do Produto</label>
+														<label class="form-label">Nome do Produto<code>*</code></label>
 														<input type="text" class="form-control" id="txt_nomeproduto" placeholder="Introduza o nome do produto" required minlength="3">
 														<div class="invalid-feedback">Por favor, informe o nome do produto (mínimo 3 caracteres).</div>
 													</div>
@@ -1364,7 +1364,7 @@
 												<div class="col-lg-4 col-sm-6 col-12">
 													<div class="mb-3 add-product">
 														<label class="form-label">Marca do Produto</label>
-														<input type="text" class="form-control" id="txt_marcaproduto" placeholder="Introduza a marca do produto" required minlength="2">
+														<input type="text" class="form-control" id="txt_marcaproduto" placeholder="Introduza a marca do produto" minlength="2">
 														<div class="invalid-feedback">Por favor, informe a marca do produto.</div>
 													</div>
 												</div>
@@ -1374,7 +1374,7 @@
 													<div class="col-lg-4 col-sm-6 col-12">
 														<div class="mb-3 add-product">
 															<div class="add-newplus">
-																<label class="form-label">Categoria</label>
+																<label class="form-label">Categoria<code>*</code></label>
 																<a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#modal-adicionar-categoria"><i data-feather="plus-circle" class="plus-down-add"></i><span>Adicionar Novo</span></a>
 															</div>
 															<select class="select" id="slc_categoria" required>
@@ -1385,7 +1385,7 @@
 													</div>
 													<div class="col-lg-4 col-sm-6 col-12">
 														<div class="mb-3 add-product">
-															<label class="form-label">Introduza a Subcategoria</label>
+															<label class="form-label">Introduza a Subcategoria<code>*</code></label>
 															<!-- <input type="text" class="form-control" id="txt_subcategoria" placeholder="Introduza a Subcategoria"> -->
 															<select class="js-select2-tags" id="txt_subcategoria" required>
 																<option value="">Selecione a Categoria</option>
@@ -1397,15 +1397,23 @@
 											</div>
 											<div class="add-product-new">
 												<div class="row">
-													<div class="col-lg-4 col-sm-6 col-6">
+													<div class="col-lg-4 col-sm-6 col-6 tipo-venda">
 														<div class="mb-3 add-product">
-															<label class="form-label">Tipo de Venda</label>
+															<label class="form-label">Tipo de Venda<code>*</code></label>
 															<select class="select" id="slc_tipovenda" required>
 																<option value="">Escolher</option>
-																<option value="Retalho">Retalho</option>
-																<option value="Atacado">Atacado</option>
+																<option value="Unidade">Unidade</option>
+																<option value="Embalagem">Embalagem</option>
 															</select>
 															<div class="invalid-feedback">Por favor, selecione o tipo de venda.</div>
+														</div>
+													</div>
+													<div class="col-lg-4 col-sm-4 col-8 d-none venda-embalagem">
+														<div class="input-blocks add-product">
+															<labe class="form-label"l>Quantidade p/ Embalagem</label>
+															<input type="text" class="form-control moneyInput" id="txt_quantidade_embalagem" placeholder="Introduza a quantidade" min="1" step="1">
+															<input type="text" class="form-control moneyInput" id="txt_quantidade_embalagem" placeholder="Introduza a quantidade" min="1" step="1">
+															<div class="invalid-feedback">Por favor, informe o preço (mínimo 0.01).</div>
 														</div>
 													</div>
 												</div>
@@ -1414,7 +1422,7 @@
 												<div class="col-lg-6 col-sm-6 col-12">
 													<div class="input-blocks add-product list">
 														<label>Código do Stock</label>
-														<input type="text" class="form-control list" id="txt_codigostock" placeholder="Introduza o Código do Stock" required readonly>
+														<input type="text" class="form-control list" id="txt_codigo_unidade" placeholder="Introduza o Código do Stock" required readonly>
 														<!-- <div class="invalid-feedback">Por favor, informe o código do stock.</div> -->
 														<!-- <button type="button" class="btn btn-primaryadd disabled" id="btn_gerar_codigo">
 															Código Gerado
@@ -1473,25 +1481,46 @@
 											<div class="tab-content" id="pills-tabContent">
 												<div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
 													<div class="row">
-														<div class="col-lg-4 col-sm-6 col-6">
+														<!-- <div class="col-lg-4 col-sm-6 col-6 d-none">
 															<div class="mb-3 add-product">
 																<label class="form-label">Quantidade</label>
-																<input type="number" class="form-control" id="txt_quantidade" placeholder="Introduza a quantidade" required min="1">
+																<input type="number" class="form-control" id="txt_quantidade" placeholder="Introduza a quantidade" min="1">
 																<div class="invalid-feedback">Por favor, informe a quantidade (mínimo 1).</div>
 															</div>
-														</div>
+														</div> -->
 														<div class="col-lg-4 col-sm-6 col-12">
 															<div class="input-blocks add-product">
 																<labe class="form-label"l>Preço</label>
-																<input type="text" class="form-control moneyInput" id="txt_preco" placeholder="Introduza o preço" required min="0.01" step="0.01">
+																<input type="text" class="form-control moneyInput" id="txt_preco" placeholder="Introduza o preço" min="0.01" step="0.01">
 																<div class="invalid-feedback">Por favor, informe o preço (mínimo 0.01).</div>
 															</div>
 														</div>
-														<div class="col-md-6 mb-3">
+														<!-- <div class="col-md-6 mb-3">
 															<label class="form-label">Peso Total</label>
-															<input type="number" class="form-control moneyInput" placeholder="Peso Total" id="txt_peso"  min="0.01" step="0.01">
+															<input type="number" class="form-control moneyInput" placeholder="Peso Total" id="txt_peso"  min="0.01" step="0.01"> -->
+															<!-- <div class="invalid-feedback">Por favor, informe o peso total (mínimo 0.01).</div> -->
+														<!-- </div> -->
+													</div>
+													<div class="row">
+														<div class="col-md-5 mb-3">
+															<label class="form-label">Peso Total</label>
+															<input type="number" class="form-control moneyInput" placeholder="Peso Total" id="txt_peso" min="0" step="0.01">
 															<!-- <div class="invalid-feedback">Por favor, informe o peso total (mínimo 0.01).</div> -->
 														</div>
+														
+															<div class="col-lg-4 col-sm-3 col-6">
+																<div class="mb-3 add-product">
+																	<label class="form-label">Medida</label>
+																	<select class="select" id="slc_medida">
+																		<option value="">Escolher</option>
+																		<!-- <option value="pcs">pcs</option> -->
+																		<option value="Kg">Kg</option>
+																		<option value="L">L</option>
+																		<option value="ml">ml</option>
+																	</select>
+																	<div class="invalid-feedback">Por favor, selecione o tipo de venda.</div>
+																</div>
+															</div>
 													</div>
 													<div class="accordion-card-one accordion" id="accordionExample3">
 														<div class="accordion-item">
@@ -1735,7 +1764,7 @@
 													<div class="col-lg-4 col-sm-6 col-12">
 														<div class="mb-3 add-product">
 															<label class="form-label">Quantidade Minima para Alerta</label>
-															<input type="number" class="form-control" id="txt_quantidaalerta" placeholder="Introduza a quantidade" required min="0">
+															<input type="number" class="form-control" id="txt_quantidaalerta" placeholder="Introduza a quantidade" required min="0" value="1">
 															<div class="invalid-feedback">Por favor, informe a quantidade mínima para alerta.</div>
 														</div>
 													</div>
@@ -2023,7 +2052,7 @@
 									<div class="mb-3">
 										<div class="input-blocks add-product list">
 											<label>Código do Item</label>
-											<input type="text" class="form-control list" id="txt_codigostock" placeholder="Código do Item">
+											<input type="text" class="form-control list" id="txt_codigo_unidade" placeholder="Código do Item">
 											<button type="button" class="btn btn-primary" id="">
 												Gerar Código
 											</button>
@@ -2179,7 +2208,7 @@
 		// 	for (let i = 0; i < 12; i++) {
 		// 	  sku += Math.floor(Math.random() * 10);
 		// 	}
-		// 	$('#txt_codigostock').val(sku);
+		// 	$('#txt_codigo_unidade').val(sku);
 		//   });
 		});
 		</script>

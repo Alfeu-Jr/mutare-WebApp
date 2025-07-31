@@ -9,6 +9,7 @@ export class Lista {
     this.addcolunas = [];
 
     this.tabelax = true;
+    this.responsive = true;
     this.tabelasave = true;
     this.lengthMenu = [10, 25, 50, 75, 100];
     this.pageLength = [50]; //quantidade de registros padrão
@@ -17,6 +18,7 @@ export class Lista {
     this.serverSide = true;
     this.search = true;
     this.searchDelay = 500;
+
 
     this.dataRequest = {};
     this.notOrderable = [];
@@ -112,6 +114,8 @@ export class Lista {
           if (type === 'display') {
             if (isNaN(data) && moment(data, 'YYYY-MM-DD HH:mm', true).isValid()) {
               return moment(data).format('DD/MM/YYYY HH:mm');
+            } else if(moment(data, 'YYYY-MM-DD', true).isValid()){
+              return moment(data).format('DD/MM/YYYY');
             }
           }
           return data;
@@ -196,150 +200,97 @@ export class Lista {
     });
   }
 
-  listalocal(){
-    
-    // console.log(this.colunas.map(col => ({ 'data': col })));
+  listalocal() {
     this.tabela = $(`#${this.nomeTabela}`).DataTable({
-      lengthMenu: this.lengthMenu,
-      orderCellsTop: true, // permitir somente o header de fazer o sorting
-      fixedHeader: true,
-      pagingType: 'first_last_numbers',
-      searchDelay: this.searchDelay,
-      // serverSide: true,
-      serverMethod: 'post',
-      select: true,
-      stateSave: true,
-      stateLoadParams: function (settings, data) {
-        data.search.search = ''; //limpa filtro geral
-
-        data.columns.forEach((columns) => {
-          columns.search = ''; // limpa o filtro de coluna
-        });
-
-      },
-      order: [Array.isArray(this.sort) > 0 ? this.sort : []],
-
-      dom: 'Bflrtip',
-      "buttons": ["excel", "pdf",
-        {
-          extend: 'print',
-          text: 'Imprimir',
-        },
-        {
-          extend: 'colvis',
-          text: 'Mostrar/Ocultar',
+        lengthMenu: this.lengthMenu,
+        orderCellsTop: true,
+        fixedHeader: true,
+        pagingType: 'first_last_numbers',
+        searchDelay: this.searchDelay,
+        select: true,
+        stateSave: true,
+        // stateLoadParams: (settings, data) => {
+        //     data.search.search = '';
+        //     data.columns.forEach((columns) => {
+        //         columns.search = '';
+        //     });
+        // },
+        // order: [Array.isArray(this.sort) && this.sort.length > 0 ? this.sort : []],
+        dom: 'Bflrtip',
+        buttons: ["excel", "pdf", {
+            extend: 'print',
+            text: 'Imprimir',
+        }, {
+            extend: 'colvis',
+            text: 'Mostrar/Ocultar',
         }],
-      language: {
-        url: 'assets/plugins/datatable/pt.json'
-      },
-      // ajax: {
-      //   url: self.url,
-      //   data: this.adicionarDadosRequest(this.dataRequest)
-      // },
-      drawCallback: function (settings) {
-        self.response = settings.json.totalResponse;
-        // console.log(response)
-        if (self.collumnFilter.length > 0) {
-          const valoresUnicos = self.retornarValoresUnicos(self.response);
-          // console.log(valoresUnicos);
-          //retorna somente os objectos que conscidem com os valores das colunas
-          const valoresColunas = self.colunas.map(key => {
-            return { [key]: valoresUnicos[key] };
-          });
-
-          // transforma objectos em array
-          // self.filtroArray = Object.values(valoresColunas);
-
-          self.filtroArray = valoresColunas.map(entry => Object.values(entry)[0] || []);
-
-        }
-      },
-      columns: this.colunas.map(col => ({ 'data': col })),
-
-      columnDefs: [{ orderable: false, targets: this.notOrderable },
-      {
-        targets: this.dateType,
-        render: function (data, type, row) {
-          if (type === 'display') {
-            if (isNaN(data) && moment(data, 'YYYY-MM-DD HH:mm', true).isValid()) {
-              return moment(data).format('DD/MM/YYYY HH:mm');
-            }
-          }
-          return data;
-        }
-      }
-      ],
-
-      // layout: {
-      //   bottomStart: {
-      //     buttons: ['copyHtml5', 'excelHtml5', 'csvHtml5', 'pdfHtml5']
-      //   },
-      //   topStart: 'pageLength'
-
-      // },
-      initComplete: function () {
-        let index = 0;
-
-        const filtros = self.optimizarResponse(self.response, self.colunas)
-        //colunas visíveis
-        let result = self.tabela.columns().visible().reduce((a, v, i) => v ? [...a, i] : a, [])
-
-        this.api().columns(result).every(function () {
-
-          if ($.inArray(result[index], self.collumnFilter) !== -1) {
-            const colunas = (self.filtroArray[result[index]]);
-            colunas.forEach((coluna) => {
-            });
-          }
-
-          var column = this;
-          // console.log(column.index() + ' == ' + self.collumnFilter);
-          if ($.inArray(column.index(), self.collumnFilter) !== -1) {
-            var select = $('<select><option value="">Filtro</option></select>')
-              .appendTo($(`#${self.nomeTabela} thead tr:eq(1) th`).eq(index).empty())
-              .on('change', function () {
-                column.search($(this).val(), { exact: true })
-                  .draw();
-              });
-
-            self.filtroArray[column.index()].forEach((coluna) => {
-              select.append(
-                '<option value="' + coluna + '">' + coluna + '</option>'
-              );
-            });
-
-            // column.data().unique().sort().each(function (d, j) {
-            //   select.append(
-            //     '<option value="' + d + '">' + d + '</option>'
-            //   );
-            // });
-          }
-          index++;
-        });
-      }
+        language: {
+            url: 'assets/plugins/datatable/pt.json'
+        },
+        // drawCallback: (settings) => {
+        //     this.response = settings.json.totalResponse;
+        //     if (this.collumnFilter.length > 0) {
+        //         const valoresUnicos = this.retornarValoresUnicos(this.response);
+        //         const valoresColunas = this.colunas.map(key => {
+        //             return { [key]: valoresUnicos[key] };
+        //         });
+        //         this.filtroArray = valoresColunas.map(entry => Object.values(entry)[0] || []);
+        //     }
+        // },
+        // columns: Array.isArray(this.colunas) && this.colunas.length > 0 ? this.colunas.map(col => ({ 'data': col })) : [],
+        // columnDefs: [{
+        //     orderable: false,
+        //     targets: this.notOrderable
+        // }, {
+        //     targets: this.dateType,
+        //     render: (data, type) => {
+        //         if (type === 'display') {
+        //             if (isNaN(data) && moment(data, 'YYYY-MM-DD HH:mm', true).isValid()) {
+        //                 return moment(data).format('DD/MM/YYYY HH:mm');
+        //             }
+        //         }
+        //         return data;
+        //     }
+        // }],
+        // initComplete: () => {
+        //     let index = 0;
+        //     const filtros = this.optimizarResponse(this.response, this.colunas);
+        //     let result = this.tabela.columns().visible().reduce((a, v, i) => v ? [...a, i] : a, []);
+        //     this.api().columns(result).every(function () {
+        //         if ($.inArray(result[index], this.collumnFilter) !== -1) {
+        //             const colunas = (this.filtroArray[result[index]]);
+        //             colunas.forEach((coluna) => {
+        //                 // Additional logic can be added here if needed
+        //             });
+        //         }
+        //         var column = this;
+        //         if ($.inArray(column.index(), this.collumnFilter) !== -1) {
+        //             var select = $('<select><option value="">Filtro</option></select>')
+        //                 .appendTo($(`#${this.nomeTabela} thead tr:eq(1) th`).eq(index).empty())
+        //                 .on('change', function () {
+        //                     column.search($(this).val(), { exact: true }).draw();
+        //                 });
+        //             this.filtroArray[column.index()].forEach((coluna) => {
+        //                 select.append('<option value="' + coluna + '">' + coluna + '</option>');
+        //             });
+        //         }
+        //         index++;
+        //     });
+        // }
     });
 
-    this.tabela.columns(self.collumnFilter).every(function () {
-      var that = this;
-
-      // Create the select list and search operation
-      var select = $('<select />')
-        .appendTo(this.footer())
-        .on('change', function () {
-          that.search($(this).val()).draw();
-        });
-
-      // Get the search data for the first column and add to the select list
-      this.cache('search')
-        .sort()
-        .unique()
-        .each(function (d) {
-          select.append($('<option value="' + d + '">' + d + '</option>'));
+    this.tabela.columns(this.collumnFilter).every(function () {
+        var that = this;
+        var select = $('<select />')
+            .appendTo(this.footer())
+            .on('change', function () {
+                that.search($(this).val()).draw();
+            });
+        this.cache('search').sort().unique().each(function (d) {
+            select.append($('<option value="' + d + '">' + d + '</option>'));
         });
     });
-  
-  }
-
+}
 
   adicionarColunasData(array) {
     let addcolunas = [];
