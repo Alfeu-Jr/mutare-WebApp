@@ -20,7 +20,6 @@ class listaProduto extends Lista {
       'marca_produto',
       'preco_de_venda',
       'tipo_venda',
-      'quantidade_estoque',
       'action'];
 
     this.sort = [0, "desc"];
@@ -29,7 +28,7 @@ class listaProduto extends Lista {
       request: "listar",
     };
 
-    this.notOrderable = [7];
+    this.notOrderable = [6];
     this.collumnFilter = [2, 3, 4];
 
     this.lista();

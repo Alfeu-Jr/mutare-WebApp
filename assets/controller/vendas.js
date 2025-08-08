@@ -809,10 +809,12 @@ class geral extends selectFiller{
     super();
     self = this;
     this.init();
+    // this.carregarStock();
   }
 
   async init() {
     self = this;
+    //see if slc_armazem exists
     if ($('#slc_armazem').length) {
       await this.getSelect("armazem", "slc_armazem", ["armazem", "id", "id"]);
   }
@@ -852,119 +854,7 @@ class ajustarStock extends selectFiller {
         console.log('Value 1 is not present in the select element.');
     }
 }
-}
 
-class baixoStock extends Lista{
-  constructor() {
-    super();
-    self = this;
-    this.init();
-    this.dados_stock;
-  }
-
-  async init() {
-    self = this;
-
-    const heralS = new geral();
-
-    this.nomeTabela = "tabela_stock_baixo";
-    this.url = "assets/model/stock.php";
-
-    this.colunas = [
-      "armazem",
-      "produto",
-      "nome_categoria",
-      "codigo_unidade",
-      "quantidade_alerta",
-      "quantidade",
-      "action",
-    ];
-
-    this.sort = [5, "desc"];
-
-    this.dataRequest = {
-      request: "lista_baixo_stock",
-    };
-
-    // this.notOrderable = [2, 6];
-    // this.collumnFilter = [0, 1];
-
-    this.lista();
-
-    $(this.tabela)
-      .find("tr")
-      .each(function () {
-        $(this).find("td:last").addClass("action-table-data");
-      });
-          // Listen for the draw event
-          self.tabela.on('draw', function() {
-            if (window.feather) {
-              feather.replace();
-            }
-      // 
-    });
-   
-    // $("#lista_stock").on("click", ".visualizar-entrada", function () {
-    //   var id = $(this).data("id");
-    //  const detalheS = new detalheStock(id);
-    //   document.getElementById("detalhes_stock").reset();
-    //   detalheS.carregarStock();
-
-    //   // console.log('id-', id);
-    //   // window.open("product-details.html?id_produto=" + id, "_self");
-    // });
-  }
-//   async init() {
-//     self = this;
-//     const heralS = new geral();
-    
-//     // Assuming this function populates the select options
-//     await heralS.populateSelectOptions(); // Ensure this function returns a promise
-
-//     $("#slc_produtos").val("2").trigger("change");
-
-//     // Wait until the options are populated
-//     let valueExists = false;
-//     do {
-//         valueExists = $('#slc_produtos').find('option[value="1"]').length > 0;
-//         // Optionally, you can add a delay here if needed
-//     } while (!valueExists);
-
-//     if (valueExists) {
-//         console.log('Value 1 is present in the select element.');
-//     } else {
-//         console.log('Value 1 is not present in the select element.');
-//     }
-// }
-  // dadosStock() {
-  //   self = this;
-  //   // detalheProduto = new detalheProduto(self.id_produto);
-  //   try {
-  //     $.ajax({
-  //       url: "assets/model/stock.php",
-  //       method: "POST",
-  //       data: { request: "dados_stock" },
-  //       dataType: "json",
-
-  //       success: function (response) {
-  //         if (response.status == true) {
-  //           self.dados_stock = response.data;
-  //           // console.log(self.dados_stock);
-  //         }
-  //       },
-  //       erro: function (response) {
-  //         Swal.fire({
-  //           icon: "error",
-  //           title: "Detalhes do Stock",
-  //           html: "Ocorreu um erro ao carregar os dados do stock, por favor <b><i>retorne</i></b> ao Menu Principal e tente novamente.",
-  //         });
-  //         console.log("Erro no sistema, Erro - ", response.responseText);
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error(error.responseText);
-  //   }
-  // }
 
 }
 
@@ -973,13 +863,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const dataMdulo = $("#stockjs").data("modulo");
   // console.log(dataMdulo)
 
-  if (dataMdulo == "stock-adicionar") {
-    const adicionarS = new adicionarStock();
-  } else if (dataMdulo == "stock-lista") {
+  if (dataMdulo == "venda-lsta") {
     const listaS = new listaStock();
-  } else if( dataMdulo == "ajustar-stock") {
-    const ajustarS = new ajustarStock();
-  }else if( dataMdulo == "baixo-stock") {
-    const baixoS = new baixoStock();
-  }
+  } 
+//   else if( dataMdulo == "ajustar-stock") {
+//     const ajustarS = new ajustarStock();
+//   }
 });
