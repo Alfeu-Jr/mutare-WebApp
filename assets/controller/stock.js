@@ -859,13 +859,13 @@ class baixoStock extends Lista{
     super();
     self = this;
     this.init();
-    this.dados_stock;
+    // this.dados_stock;
   }
 
   async init() {
     self = this;
 
-    const heralS = new geral();
+
 
     this.nomeTabela = "tabela_stock_baixo";
     this.url = "assets/model/stock.php";
@@ -883,7 +883,8 @@ class baixoStock extends Lista{
     this.sort = [5, "desc"];
 
     this.dataRequest = {
-      request: "lista_baixo_stock",
+      request: "baixo_stock",
+      id_armazem: 0,
     };
 
     // this.notOrderable = [2, 6];
@@ -896,14 +897,25 @@ class baixoStock extends Lista{
       .each(function () {
         $(this).find("td:last").addClass("action-table-data");
       });
-          // Listen for the draw event
-          self.tabela.on('draw', function() {
-            if (window.feather) {
-              feather.replace();
-            }
-      // 
-    });
-   
+      
+      // Listen for the draw event
+            self.tabela.on('draw', function() {
+                if (window.feather) {
+                    feather.replace();
+                  }
+          });
+          
+          const heralS = new geral();
+
+          // listenner for retrieve val of select2
+          // await heralS.populateSelectOptions(); // Ensure this function returns a promise
+          // id_armazem 
+          
+          $('#slc_armazem').on('change', function() {
+            var selectedValue = $(this).val();
+            console.log('Selected Value: ' + selectedValue);
+        });
+
     // $("#lista_stock").on("click", ".visualizar-entrada", function () {
     //   var id = $(this).data("id");
     //  const detalheS = new detalheStock(id);
