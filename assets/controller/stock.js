@@ -872,7 +872,7 @@ class baixoStock extends Lista{
 
     this.colunas = [
       "armazem",
-      "produto",
+      "nome_produto",
       "nome_categoria",
       "codigo_unidade",
       "quantidade_alerta",
@@ -892,6 +892,22 @@ class baixoStock extends Lista{
 
     this.lista();
 
+    // $('#slc_armazem').on('keyup', function () {
+    //   this.tabela
+    //         .columns(0)
+    //         .search(this.value)
+    //         .draw();
+    // });
+
+  //   $('#slc_armazem').on('keyup change', function () {
+  //     if (self.tabela.search() !== this.value) {
+  //       self.tabela.search(this.value).draw();
+  //     }
+  // });
+
+//  let regExSearch = '^\\s' + "mutare" +'\\s*$';
+  // this.tabela.column(0).search('mutare', true, false).draw();
+
     $(this.tabela)
       .find("tr")
       .each(function () {
@@ -906,15 +922,48 @@ class baixoStock extends Lista{
           });
           
           const heralS = new geral();
+          // # Add a New Select Option After First Index Option
+
+        $(document).ready(function() {
+            $('#slc_armazem').find('option:eq(1)').after('<option value="newOption">New Option</option>');
+        });
+
 
           // listenner for retrieve val of select2
           // await heralS.populateSelectOptions(); // Ensure this function returns a promise
           // id_armazem 
           
-          $('#slc_armazem').on('change', function() {
-            var selectedValue = $(this).val();
-            console.log('Selected Value: ' + selectedValue);
-        });
+          $('#slc_armazem').on('change', (event) => {
+            var selectedText = $(event.currentTarget).find('option:selected').text(); // Extracting the text
+            console.log('Selected Text: ' + selectedText); // Logging the selected text
+      
+            // Check if self.tabela is defined
+            this.tabela.column(0).search('', true, false).draw();
+            if (this.tabela) {
+              this.tabela.column(0).search(selectedText, true, false).draw();
+            } else {
+              console.error('self.tabela is undefined. Please ensure it is initialized properly.');
+            }
+          });
+        
+        //   $('#slc_armazem').on('change', function() {
+        //     var selectedValue = $(this).val();
+        //     console.log('Selected Value: ' + selectedValue);
+        //     this.tabela.column(0).search('mutare', true, false).draw();
+
+        //     // Apply the filter to the DataTable
+        
+        //      // Clear filter if "all" or empty value is selected
+        //   //    if (selectedValue === '' || selectedValue === 'all') {
+        //   //     self.tabela.column.search('').draw();
+        //   // } else {
+        //   //   self.tabela.column.search(selectedValue).draw();
+        //   // }
+
+        //   // / #column3_search is a <input type="text"> element
+
+        //     // self.tabela.column(0).search(selectedValue).draw(); // Adjust the column index as needed
+        // });
 
     // $("#lista_stock").on("click", ".visualizar-entrada", function () {
     //   var id = $(this).data("id");

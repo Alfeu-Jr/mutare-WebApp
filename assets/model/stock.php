@@ -610,14 +610,16 @@ class Stock
         // }
 
         $tabela = "(SELECT k.id, k.codigo_lote, k.produto_id, k.quantidade, k.preco_unitario, k.valor_total, k.lote, k.data_validade, k.data_registro,
-		    pr.nome_produto, pr.codigo_unidade,
-            CONCAT(c.categoria, '(', pr.subcategoria, ')') AS categoria
+		    pr.nome_produto, pr.codigo_unidade, ar.armazem,
+            CONCAT(c.categoria, ' (', pr.subcategoria, ')') AS nome_categoria,
+            pr.quantidade_alerta
             FROM
                 mutare_solucoes.item_entrada_stock k
             left join mutare_solucoes.entrada e on (e.lote = k.codigo_lote)
+            left join armazem ar on (e.armazem_id = ar.id)
             left join mutare_solucoes.produto pr on (pr.id = k.produto_id)
             left outer join mutare_solucoes.categoria c on (pr.categoria_id = c.id)
-            where {$armazem}) as T";
+            where k.quantidade >= pr.quantidade_alerta and k.quantidade > 0 and {$armazem}) as T";
 
         // echo $tabela;
         // Contagem total de registros sem filtros
@@ -636,23 +638,23 @@ class Stock
             $len = count($records);
         }
 
-        // if ($len > 0) {
-        //     for ($i = 0; $i < $len; $i++) {
-        //         // Botão que permite visualizar os detalhe
-        //         $action = "<div class='edit-delete-action'>
-		// 						<a class='me-2 p-2 visualizar-entrada' href='#' data-bs-toggle='modal' data-bs-target='#edit-units' data-id='{$records[$i]['id']}'>
-		// 							<i data-feather='eye' class='feather-eye'></i>
-		// 						</a>
-		// 						<a class='confirm-text p-2' href='javascript:void(0);' data-bs-target='#block-units' data-id='{$records[$i]['id']}'>
-		// 							<i data-feather='trash-2' class='feather-trash-2'></i>
-		// 						</a>
-		// 					</div>";
-        //         // Verificar se as chaves existem e não são nulas
-        //         if (isset($records[$i]) && !empty($records[$i])) {
-        //             $records[$i]['action'] = $action;
-        //         }
-        //     }
-        // }
+        if ($len > 0) {
+            for ($i = 0; $i < $len; $i++) {
+                // Botão que permite visualizar os detalhe
+                $action = "<div class='edit-delete-action'>
+								<a class='me-2 p-2 visualizar-entrada' href='#' data-bs-toggle='modal' data-bs-target='#edit-units' data-id='{$records[$i]['id']}'>
+									<i data-feather='eye' class='feather-eye'></i>
+								</a>
+								<a class='confirm-text p-2' href='javascript:void(0);' data-bs-target='#block-units' data-id='{$records[$i]['id']}'>
+									<i data-feather='trash-2' class='feather-trash-2'></i>
+								</a>
+							</div>";
+                // Verificar se as chaves existem e não são nulas
+                if (isset($records[$i]) && !empty($records[$i])) {
+                    $records[$i]['action'] = $action;
+                }
+            }
+        }
         ## Response
         $response = array(
             "draw" => intval($draw),
@@ -664,4 +666,119 @@ class Stock
         return $response;
     }
 
+    public function lista_sem_stock()
+    {
+        global $crud;
+        global $postData ;
+
+        $newArray = [];
+        $condicao = "true";
+
+        // transforma o array em uma unica string
+        if (isset($postData['condicao'])) {
+            foreach ($postData['condicao'] as $valor) {
+                if (isset($valor[1])) {
+                    $condi[] = "{$valor[0]} = '{$valor[1]}'";
+                }
+            }
+            if (!empty($condi)) {
+                $condicao = implode(' and ', $condi);
+            }
+        }
+        // ler Valores
+        $draw = $_POST["draw"];
+        $row = $_POST["start"];
+        $rowperpage = $_POST["length"]; // Linhas por página
+        $columnIndex = isset($_POST['order'][0]['column']) ? $_POST['order'][0]['column'] : 0; // Coluna ordenada
+        $columnName = $_POST['columns'][$columnIndex]['data']; // Nome da coluna
+        $columnsortOrder = isset($_POST['order'][0]['dir']) ? $_POST['order'][0]['dir'] : '';
+        $searchValue = $_POST['search']['value']; // Valor da pesquisa
+        $armazem = ($_POST['id_armazem']) == 0 ? true : "e.armazem = '{$postData['id_stock']}'";
+
+        // Initialize an empty array to store the extracted data
+        foreach ($_POST['columns'] as $index => $column) {
+            $data = $column['data'];
+            $valeu = $column['search']['value'];
+            if ($valeu != '') {
+                $valeu = str_replace("'", "''", $valeu);
+                $newArray[] = "{$data} like '%{$valeu}%'";
+            }
+        }
+
+        if (!empty($newArray)) {
+            $searchQuery2 = "(" . implode(' and ', $newArray) . ")";
+        }
+        // Pesquisa
+        $searchQuery = " 1";
+        if ($searchValue != '') {
+            $searchQuery = " (nome_produto like '%" . $searchValue . "%' or
+                                    categoria like '%" . $searchValue . "%' or
+                                    codigo_unidade like '%" . $searchValue . "%') ";
+            if (!empty($newArray)) {
+                $searchQuery .= " and " . $searchQuery2;
+            }
+        } elseif (!empty($newArray)) {
+            $searchQuery = $searchQuery2;
+        }
+
+        // if (isset($postData['id_armazem'])) {
+        //     $searchQuery .= " and " . $searchQuery2;
+        // }
+
+        $tabela = "(SELECT k.id, k.codigo_lote, k.produto_id, k.quantidade, k.preco_unitario, k.valor_total, k.lote, k.data_validade, k.data_registro,
+		    pr.nome_produto, pr.codigo_unidade, ar.armazem,
+            CONCAT(c.categoria, ' (', pr.subcategoria, ')') AS nome_categoria,
+            pr.quantidade_alerta
+            FROM
+                mutare_solucoes.item_entrada_stock k
+            left join mutare_solucoes.entrada e on (e.lote = k.codigo_lote)
+            left join armazem ar on (e.armazem_id = ar.id)
+            left join mutare_solucoes.produto pr on (pr.id = k.produto_id)
+            left outer join mutare_solucoes.categoria c on (pr.categoria_id = c.id)
+            where k.quantidade >= pr.quantidade_alerta and k.quantidade > 0 and {$armazem}) as T";
+
+        // echo $tabela;
+        // Contagem total de registros sem filtros
+        $totalRecords = $crud->count($tabela, true);
+        //resultado sem filtros
+        $totalResponse = $crud->readDataTable('', $tabela, '');
+        // Contagem total de registros com filtros
+        $totalRecordwithFilter = $crud->count($tabela, $searchQuery);
+
+        //Resultados
+        $condicao2 = $searchQuery . ' order by ' . $columnName . ' ' . $columnsortOrder . ' limit ' . $row . ',' . $rowperpage;
+        $records = $crud->readDataTable("", $tabela, $condicao2);
+
+        $len = 0;
+        if ($totalResponse != null) {
+            $len = count($records);
+        }
+
+        if ($len > 0) {
+            for ($i = 0; $i < $len; $i++) {
+                // Botão que permite visualizar os detalhe
+                $action = "<div class='edit-delete-action'>
+								<a class='me-2 p-2 visualizar-entrada' href='#' data-bs-toggle='modal' data-bs-target='#edit-units' data-id='{$records[$i]['id']}'>
+									<i data-feather='eye' class='feather-eye'></i>
+								</a>
+								<a class='confirm-text p-2' href='javascript:void(0);' data-bs-target='#block-units' data-id='{$records[$i]['id']}'>
+									<i data-feather='trash-2' class='feather-trash-2'></i>
+								</a>
+							</div>";
+                // Verificar se as chaves existem e não são nulas
+                if (isset($records[$i]) && !empty($records[$i])) {
+                    $records[$i]['action'] = $action;
+                }
+            }
+        }
+        ## Response
+        $response = array(
+            "draw" => intval($draw),
+            "iTotalRecords" => $totalRecords,
+            "iTotalDisplayRecords" => $totalRecordwithFilter,
+            "aaData" => $records,
+            "totalResponse" => $totalResponse
+        );
+        return $response;
+    }
 }

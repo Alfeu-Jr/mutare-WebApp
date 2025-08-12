@@ -17,7 +17,7 @@ export class Lista {
     this.search = true;
     this.serverSide = true;
     this.search = true;
-    this.searchDelay = 500;
+    // this.searchDelay = 500;
 
 
     this.dataRequest = {};
