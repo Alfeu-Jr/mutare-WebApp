@@ -170,17 +170,17 @@ class Stock
         $produtos = $postData['produtos'];
         $quantidades = $postData['quantidades'];
 
-        $coluna[] = 'data_entrada';
-        $valor[] = $postData['data_entrada'] ?? date('Y-m-d H:i:s');
+        $colunaEntrada[] = 'data_entrada';
+        $valorEntrada[] = $postData['data_entrada'] ?? date('Y-m-d H:i:s');
 
-        $coluna[] = 'lote';
-        $valor[] = $lote;
+        $colunaEntrada[] = 'lote';
+        $valorEntrada[] = $lote;
 
-        $coluna[] = 'armazem_id';
-        $valor[] = $postData['armazem_id'];
+        $colunaEntrada[] = 'armazem_id';
+        $valorEntrada[] = $postData['armazem_id'];
 
-        // $coluna[] = 'responsalvel';
-        // $valor[] = $_SESSION['user_id'];
+        // $colunaEntrada[] = 'responsalvel';
+        // $valorEntrada[] = $_SESSION['user_id'];
 
         try {
             // Se não houver produtos ou quantidades, retorna erro
@@ -190,7 +190,7 @@ class Stock
                 throw new Exception(code: 1);
             }
 
-            if ($crud->insert($tabela, $coluna, $valor) != true) {
+            if ($crud->insert($tabela, $colunaEntrada, $valorEntrada) != true) {
                 throw new Exception(code: 2);
             }
             foreach ($produtos as $index => $produto_id) {
@@ -200,21 +200,21 @@ class Stock
                 $quantidade = $quantidades[$index];
             
                 // Initialize arrays for each iteration
-                $colunaStock = [];
-                $valorStock = [];
+                $colunaItemStock = [];
+                $valorItemStock = [];
             
-                $colunaStock[] = 'codigo_lote';
-                $valorStock[] = $lote;
+                $colunaItemStock[] = 'codigo_lote';
+                $valorItemStock[] = $lote;
             
-                $colunaStock[] = 'produto_id';
-                $valorStock[] = $produto_id;
+                $colunaItemStock[] = 'produto_id';
+                $valorItemStock[] = $produto_id;
             
-                $colunaStock[] = 'quantidade';
-                $valorStock[] = $quantidade;
+                $colunaItemStock[] = 'quantidade';
+                $valorItemStock[] = $quantidade;
                 // print_r($colunaStock);
                 // print_r($valorStock);
             
-                if ($crud->insertMultiple($tabelaStock, $colunaStock, $valorStock) != true) {
+                if ($crud->insertMultiple($tabelaStock, $colunaItemStock, $valorItemStock) != true) {
                     throw new Exception(code: 3);
                 }
                 // echo "`Produto ID: {$produto_id}, Quantidade: {$quantidade} registrada com sucesso!<br>";

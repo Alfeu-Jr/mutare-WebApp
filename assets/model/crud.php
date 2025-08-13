@@ -323,5 +323,24 @@ class crud
         }
         return $response;
     }
+    public function commit()
+    {
+        global $con;
+        if (mysqli_commit($con)) {
+            return true;
+        } else {
+            return "Error: " . mysqli_error($con);
+        }
+    }
+
+    public function rollback()
+    {
+        global $con;
+        if (mysqli_rollback($con)) {
+            return true;
+        } else {
+            return "Error: " . mysqli_error($con);
+        }
+    }
  
 }

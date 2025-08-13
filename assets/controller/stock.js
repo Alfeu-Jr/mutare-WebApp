@@ -927,11 +927,6 @@ class baixoStock extends Lista{
         $(document).ready(function() {
             $('#slc_armazem').find('option:eq(1)').after('<option value="newOption">New Option</option>');
         });
-
-
-          // listenner for retrieve val of select2
-          // await heralS.populateSelectOptions(); // Ensure this function returns a promise
-          // id_armazem 
           
           $('#slc_armazem').on('change', (event) => {
             var selectedText = $(event.currentTarget).find('option:selected').text(); // Extracting the text
