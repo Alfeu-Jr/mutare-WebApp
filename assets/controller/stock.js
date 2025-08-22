@@ -862,10 +862,34 @@ class baixoStock extends Lista{
     // this.dados_stock;
   }
 
+    waitForOptionsChange(selector) {
+    return new Promise((resolve) => {
+        const selectElement = document.querySelector(selector);
+        
+        if (!selectElement) {
+            console.warn(`Element with selector "${selector}" not found`);
+            resolve(null);
+            return;
+        }
+        
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList') {
+                    // Options have changed
+                    observer.disconnect();
+                    resolve(selectElement);
+                }
+            });
+        });
+        
+        observer.observe(selectElement, {
+            childList: true,
+            subtree: true
+        });
+    });
+}
   async init() {
     self = this;
-
-
 
     this.nomeTabela = "tabela_stock_baixo";
     this.url = "assets/model/stock.php";
@@ -921,15 +945,31 @@ class baixoStock extends Lista{
                   }
           });
           
-          const heralS = new geral();
-          // # Add a New Select Option After First Index Option
+          const geralS = await new geral();
 
-        $(document).ready(function() {
-            $('#slc_armazem').find('option:eq(1)').after('<option value="newOption">New Option</option>');
-        });
-          
+    // console.log("Waiting for options to change...");
+    
+    const selectElement = await this.waitForOptionsChange("#slc_armazem");
+    
+    if (selectElement) {
+        // console.log("Options updated!");
+        // console.log("New option count:", selectElement.options.length);
+        
+        // Process the new options
+       
+        // console.log("fino:");
+        // $('#slc_armazem').prepend('<option value="new_value">New Option</option>');
+        // $('#slc_armazem').find('option:eq(0)').after('<option value="">New Option</option>');
+        //  $('#slc_armazem').eq(0).text('New Option Text').val('newValue');$('select option:eq(0)').remove();
+        // $('select option:eq(0)').remove();
+        $('#slc_armazem option:eq(0)').remove();
+        $('#slc_armazem').prepend('<option value="0" selected>Selecione um armazém</option>');
+    }
+
+      
+          //adicionar o evento de mudança ao select armazem
           $('#slc_armazem').on('change', (event) => {
-            var selectedText = $(event.currentTarget).find('option:selected').text(); // Extracting the text
+            var selectedText = $(event.currentTarget).find('option:selected').val(); // Extracting the text
             console.log('Selected Text: ' + selectedText); // Logging the selected text
       
             // Check if self.tabela is defined
@@ -970,6 +1010,7 @@ class baixoStock extends Lista{
     //   // window.open("product-details.html?id_produto=" + id, "_self");
     // });
   }
+ 
 //   async init() {
 //     self = this;
 //     const heralS = new geral();

@@ -577,7 +577,7 @@ class Stock
         $columnName = $_POST['columns'][$columnIndex]['data']; // Nome da coluna
         $columnsortOrder = isset($_POST['order'][0]['dir']) ? $_POST['order'][0]['dir'] : '';
         $searchValue = $_POST['search']['value']; // Valor da pesquisa
-        $armazem = ($_POST['id_armazem']) == 0 ? true : "e.armazem = '{$postData['id_stock']}'";
+        $armazem = ($_POST['id_armazem']) == 0 ? true : "e.armazem = '{$postData['id_armazem']}'";
 
         // Initialize an empty array to store the extracted data
         foreach ($_POST['columns'] as $index => $column) {
@@ -610,7 +610,7 @@ class Stock
         // }
 
         $tabela = "(SELECT k.id, k.codigo_lote, k.produto_id, k.quantidade, k.preco_unitario, k.valor_total, k.lote, k.data_validade, k.data_registro,
-		    pr.nome_produto, pr.codigo_unidade, ar.armazem,
+		    pr.nome_produto, pr.codigo_unidade, ar.armazem, ar.id as id_armazem,
             CONCAT(c.categoria, ' (', pr.subcategoria, ')') AS nome_categoria,
             pr.quantidade_alerta
             FROM

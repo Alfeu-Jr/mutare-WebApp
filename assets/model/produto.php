@@ -194,11 +194,13 @@ class Produto
                     <a class='me-2 edit-icon p-2 detalhe-produto' href='product-details.html?id_produto={$response[$i]['produto_id']}' data-id='{$response[$i]['produto_id']}'>
 														<i data-feather='eye' class='action-eye'></i>
 													</a>
-                        
-                </div>";
-                // <a class='me-2 p-2 editar-produto' href='edit-product.html' data-id='{$response[$i]['produto_id']}'>
-				// 										<i data-feather='edit' class='feather-edit'></i>
-				// 									</a>
+                                                    <a class='me-2 edit-icon p-2 detalhe-produto' href='product-details.html?id_produto={$response[$i]['produto_id']}' data-id='{$response[$i]['produto_id']}'>
+														<i data-feather='database'></i>
+													</a>
+                                                    <a class='confirm-text p-2' href='javascript:void(0);' data-bs-target='#block-units' data-id='{$response[$i]['id']}'>
+									<i data-feather='trash-2' class='feather-trash-2'></i>
+								</a>
+                    </div>";
                 // <a class='confirm-text p-2 apagar-produto' href='javascript:void(0);' data-id='{$response[$i]['produto_id']}'>
 				// 										<i data-feather='trash-2' class='feather-trash-2'></i>
 				// 									</a>
